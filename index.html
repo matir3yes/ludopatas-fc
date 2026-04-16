@@ -136,7 +136,6 @@
             display: none;
         }
 
-        /* HISTORIAL */
         .month-group { margin-top: 25px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
         .month-header {
             background: #222;
@@ -236,7 +235,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby4PWkSrFDklEVIyGbBObjSYD_zURS--TUZkyrk_BWMkYNrZ89ECGTBsJzrF2wHE4Zu/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxudr6kTxG6d0BRHXz6t7z6Go7KR5IPrwn89BrhtiFoc9JaVlX6s8PNKsxtnaZn79yN/exec";
     let mesa = [];
     const VALOR_MANO = 100;
     const meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
@@ -339,11 +338,15 @@
         };
 
         try {
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                mode: 'no-cors',
+                body: JSON.stringify(payload) 
+            });
             alert("¡Partida Guardada!");
             mesa = [];
             actualizarMesa();
-            fetchHistorial();
+            setTimeout(fetchHistorial, 2000);
         } catch (e) { alert("Error al guardar"); }
         document.getElementById('loader').style.display = "none";
     }
@@ -358,7 +361,7 @@
 
     function renderHistorial(data) {
         const cont = document.getElementById('historial-contenedor');
-        if(!data.length) { cont.innerHTML = "<p>Sin datos.</p>"; return; }
+        if(!data || !data.length) { cont.innerHTML = "<p style='text-align:center; color:var(--neutral);'>Sin datos registrados aún.</p>"; return; }
         
         cont.innerHTML = "";
         const grupos = {};
@@ -375,13 +378,14 @@
         Object.keys(grupos).forEach(idMes => {
             const g = grupos[idMes];
             const sesionesArr = Object.values(g.sesiones);
+            const idLimpio = idMes.replace(/\s+/g, '');
             cont.innerHTML += `
                 <div class="month-group">
-                    <div class="month-header" onclick="toggleMonth('${idMes}')">
+                    <div class="month-header" onclick="toggleMonth('${idLimpio}')">
                         <span class="month-name">${idMes}</span>
                         <span class="month-sum">PREMIOS: $${g.totalPremios}</span>
                     </div>
-                    <div id="content-${idMes.replace(' ','')}" class="month-content">
+                    <div id="content-${idLimpio}" class="month-content">
                         ${sesionesArr.map((s, idx) => `
                             <div class="history-card">
                                 <div class="h-head"><b>JUEGO ${sesionesArr.length - idx}</b> <span>${s.fecha}</span></div>
@@ -403,7 +407,7 @@
     }
 
     function toggleMonth(id) {
-        const el = document.getElementById('content-' + id.replace(' ',''));
+        const el = document.getElementById('content-' + id);
         el.style.display = el.style.display === "none" ? "block" : "none";
     }
 
