@@ -2,9 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ludópatas FC - Elite Edition</title>
     <style>
+        /* IMPORTACIÓN DE FUENTES CLÁSICAS Y ELEGANTES */
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto+Mono:ital,wght@1,300&display=swap');
+
         :root {
             --bg: #0a0a0a;
             --panel: #161616;
@@ -18,11 +21,11 @@
         }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 15px;
+            padding: 10px;
             display: flex;
             justify-content: center;
         }
@@ -34,34 +37,58 @@
             border-bottom: 2px solid var(--gold);
             padding-bottom: 10px;
             margin-bottom: 20px;
+            position: relative;
         }
 
-        header h1 { color: var(--gold); text-transform: uppercase; letter-spacing: 3px; margin: 0; font-size: 1.8rem; }
+        /* FUENTE ESTILO CASINO PARA EL TÍTULO */
+        header h1 { 
+            color: var(--gold); 
+            text-transform: uppercase; 
+            letter-spacing: 4px; 
+            margin: 0; 
+            font-size: 1.8rem;
+            font-family: 'Playfair Display', serif; /* Fuente serif clásica */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
 
-        .session-info { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        /* CRÉDITOS DISCRETOS Y ELEGANTES */
+        .credits {
+            font-family: 'Roboto Mono', monospace; /* Fuente estilo máquina de escribir */
+            font-style: italic;
+            font-weight: 300;
+            font-size: 0.65rem;
+            color: #444; /* Color muy sutil */
+            margin-top: 2px;
+            letter-spacing: 1px;
+        }
+
+        .suits { font-size: 1rem; color: var(--gold); opacity: 0.5; margin-bottom: 5px; }
+
+        .session-info { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
         .info-input {
             background: #222;
             border: 1px solid var(--border);
             border-radius: 20px;
             color: var(--gold);
-            padding: 6px 15px;
-            font-size: 0.8rem;
+            padding: 8px 12px;
+            font-size: 0.75rem;
             text-align: center;
+            width: 45%;
         }
 
-        .main-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
         @media (min-width: 850px) { .main-grid { grid-template-columns: 320px 1fr; } }
 
         .card {
             background: var(--panel);
-            padding: 20px;
+            padding: 15px;
             border-radius: 12px;
             border: 1px solid var(--border);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
             height: fit-content;
         }
 
-        h2 { font-size: 0.9rem; color: var(--gold); margin: 0 0 15px 0; text-transform: uppercase; border-left: 3px solid var(--gold); padding-left: 10px; }
+        h2 { font-size: 0.85rem; color: var(--gold); margin: 0 0 15px 0; text-transform: uppercase; border-left: 3px solid var(--gold); padding-left: 10px; }
 
         .input-group { margin-bottom: 12px; }
         label { display: block; font-size: 0.7rem; color: var(--neutral); margin-bottom: 4px; }
@@ -70,23 +97,27 @@
             padding: 12px;
             background: #222;
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 8px;
             color: #fff;
             box-sizing: border-box;
+            font-size: 1rem;
         }
 
         .btn {
             width: 100%;
             padding: 14px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
             transition: 0.2s;
+            font-size: 0.9rem;
         }
 
-        .btn-gold { background: var(--gold); color: #000; }
+        .btn-gold { background: var(--gold); color: #000; box-shadow: 0 4px 0 #967c29; }
+        .btn-gold:active { transform: translateY(2px); box-shadow: 0 2px 0 #967c29; }
+        
         .btn-green { background: var(--green); color: #fff; margin-top: 15px; }
         .btn-blue { background: var(--blue); color: #fff; margin-top: 10px; }
         
@@ -95,34 +126,41 @@
             color: var(--green);
             border: 1px solid #555;
             border-radius: 4px;
-            padding: 2px 8px;
+            padding: 4px 10px;
             cursor: pointer;
             font-weight: bold;
-            margin-left: 5px;
         }
 
         .btn-del {
-            background: rgba(255, 77, 77, 0.15);
+            background: rgba(255, 77, 77, 0.1);
             color: var(--red);
             border: 1px solid var(--red);
             border-radius: 4px;
-            padding: 2px 6px;
+            padding: 4px 8px;
             cursor: pointer;
-            font-size: 0.7rem;
         }
 
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; font-size: 0.65rem; color: var(--neutral); padding: 8px; border-bottom: 1px solid var(--border); }
-        td { padding: 12px 8px; border-bottom: 1px solid #222; font-size: 0.85rem; }
+        td { padding: 10px 6px; border-bottom: 1px solid #222; font-size: 0.85rem; }
 
-        .monto-resultado { width: 85px; background: #000; border: 1px solid #444; color: var(--gold); text-align: center; padding: 6px; border-radius: 4px; font-weight: bold; }
+        .monto-resultado { width: 70px; background: #000; border: 1px solid #444; color: var(--gold); text-align: center; padding: 8px 4px; border-radius: 6px; font-weight: bold; }
 
-        .badge { padding: 4px 6px; border-radius: 4px; font-weight: bold; font-size: 0.65rem; text-transform: uppercase; display: inline-block; min-width: 110px; text-align: center; }
+        .badge { 
+            padding: 4px 8px; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            font-size: 0.7rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 5px;
+            min-width: 80px;
+        }
         .win { background: rgba(46, 204, 113, 0.15); color: var(--green); }
-        .arremango { background: var(--blue); color: #fff; }
         .loss { background: rgba(255, 77, 77, 0.15); color: var(--red); }
-        .chulio { background: #ff4d4d; color: #000; }
         .cero { background: rgba(136, 136, 136, 0.15); color: var(--neutral); }
+        .arremango { background: var(--blue); color: #fff; border: 1px solid #fff; }
 
         .alerta {
             background: rgba(255, 77, 77, 0.1);
@@ -140,44 +178,42 @@
         .month-header {
             background: #222;
             padding: 15px;
-            cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border);
         }
-        .month-name { color: var(--gold); font-weight: 900; text-transform: uppercase; }
-        .month-sum { font-size: 0.8rem; font-weight: bold; color: var(--green); }
-
-        .month-content { padding: 15px; background: #0c0c0c; }
+        .month-name { color: var(--gold); font-weight: 900; }
 
         .history-card {
             background: var(--panel);
             border-radius: 8px;
             margin-bottom: 15px;
-            border: 1px solid #222;
             border-left: 5px solid var(--gold);
+            overflow: hidden;
         }
-        .h-head { background: #1a1a1a; padding: 10px; display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--neutral); border-bottom: 1px solid #222; }
-        .h-body { padding: 12px; }
-        .h-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #1f1f1f; font-size: 0.85rem; }
-        .h-footer { padding: 8px 12px; font-size: 0.7rem; color: var(--neutral); display: flex; justify-content: space-between; background: #111; }
+        .h-head { background: #1a1a1a; padding: 10px; display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--neutral); }
+        .h-body { padding: 10px; }
+        .h-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1f1f1f; }
         
         .loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000;
+            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000;
         }
     </style>
 </head>
 <body>
 
-<div id="loader" class="loading-overlay"><div style="color:var(--gold)">PROCESANDO...</div></div>
+<div id="loader" class="loading-overlay"><div style="color:var(--gold); font-weight: bold; letter-spacing: 2px;">GUARDANDO EN NUBE...</div></div>
 
 <div class="container">
-    <header><h1>Ludópatas FC</h1></header>
+    <header>
+        <div class="suits">♠️ ♥️ ♣️ ♦️</div>
+        <h1>Ludópatas FC</h1>
+        <div class="credits">Created by Matias Reyes & Gemini Associates</div>
+    </header>
 
     <div class="session-info">
-        <input type="text" id="current-date" class="info-input">
+        <input type="text" id="current-date" class="info-input" readonly>
         <input type="text" id="session-note" class="info-input">
     </div>
 
@@ -185,22 +221,22 @@
         <div class="card">
             <h2>Nuevo Jugador</h2>
             <div class="input-group">
-                <label>Nombre</label>
-                <input type="text" id="name" placeholder="Ej: MATIAS">
+                <label>Nombre del Jugador</label>
+                <input type="text" id="name" placeholder="Ej: BILLO">
             </div>
             <div class="input-group">
-                <label>Manos Iniciales ($100)</label>
+                <label>Manos Compradas ($100 c/u)</label>
                 <input type="number" id="buys" value="1" min="1">
             </div>
-            <button class="btn btn-gold" onclick="add()">Sentar</button>
+            <button class="btn btn-gold" onclick="add()">Sentar en Mesa</button>
             <div style="margin-top:20px; text-align: center;">
-                <span style="color:var(--neutral); font-size: 0.75rem;">CAJA TOTAL</span><br>
-                <span id="total-in" style="color:var(--gold); font-size: 1.5rem; font-weight: bold;">$0</span>
+                <span style="color:var(--neutral); font-size: 0.7rem;">POZO EN MESA</span><br>
+                <span id="total-in" style="color:var(--gold); font-size: 1.6rem; font-weight: bold;">$0</span>
             </div>
         </div>
 
         <div class="card">
-            <h2>Mesa de Juego</h2>
+            <h2>Mesa en Vivo</h2>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -209,27 +245,27 @@
                             <th>Jugador</th>
                             <th>Manos</th>
                             <th>Inv.</th>
-                            <th>Resultado</th>
+                            <th>Cierre</th>
                             <th>Estado</th>
                         </tr>
                     </thead>
                     <tbody id="lista-mesa"></tbody>
                 </table>
             </div>
-            <button class="btn btn-green" onclick="liquidar()" style="margin-top:15px;">Finalizar y Cuadrar</button>
+            <button class="btn btn-green" onclick="liquidar()">Finalizar y Cuadrar</button>
             <div id="msg-alerta" class="alerta"></div>
 
             <div id="resumen-final" style="display:none; margin-top:20px; padding:15px; background:#000; border-radius:8px; border: 1px solid var(--blue);">
-                <div id="resumen-lista" style="font-size: 0.85rem; margin-bottom: 15px;"></div>
-                <button class="btn btn-blue" onclick="guardarPartida()">Guardar en Historial Mensual</button>
+                <div id="resumen-lista" style="font-size: 0.85rem; margin-bottom: 15px; line-height: 1.6;"></div>
+                <button class="btn btn-blue" onclick="guardarPartida()">Confirmar y Guardar</button>
             </div>
         </div>
     </div>
 
-    <div style="margin-top: 40px;">
-        <h2 style="color:var(--neutral); border-color:var(--neutral);">Registro Histórico</h2>
+    <div style="margin-top: 30px;">
+        <h2 style="color:var(--neutral); border-color:var(--neutral);">Historial de Sesiones</h2>
         <div id="historial-contenedor">
-            <p style="text-align:center; color:var(--neutral);">Cargando historial...</p>
+            <p style="text-align:center; color:var(--neutral); font-size: 0.8rem;">Cargando datos...</p>
         </div>
     </div>
 </div>
@@ -242,8 +278,8 @@
 
     function setupDateTime() {
         const now = new Date();
-        document.getElementById('current-date').value = `FECHA: ${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
-        document.getElementById('session-note').value = now.getHours() >= 12 ? 'JORNADA: PM' : 'JORNADA: AM';
+        document.getElementById('current-date').value = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+        document.getElementById('session-note').value = now.getHours() >= 12 ? 'JORNADA NOCTURNA' : 'JORNADA MAÑANA';
     }
 
     function add() {
@@ -261,7 +297,7 @@
     }
 
     function eliminarJugador(id) {
-        if(confirm("¿Eliminar jugador de la mesa?")) {
+        if(confirm("¿Quitar de la mesa?")) {
             mesa = mesa.filter(j => j.id !== id);
             actualizarMesa();
         }
@@ -278,11 +314,16 @@
             const celda = document.getElementById(`saldo-${j.id}`);
             if(!celda) return;
             const bal = j.balanceNeto;
-            if (bal >= 200) celda.innerHTML = `<span class="badge arremango">ARREMANGO</span>`;
-            else if (bal > 0) celda.innerHTML = `<span class="badge win">+$${bal}</span>`;
-            else if (bal <= -100) celda.innerHTML = `<span class="badge chulio">CHULIO</span>`;
-            else if (bal < 0) celda.innerHTML = `<span class="badge loss">-$${Math.abs(bal)}</span>`;
-            else celda.innerHTML = `<span class="badge cero">EN MESA</span>`;
+            
+            if (bal >= 200) {
+                celda.innerHTML = `<span class="badge arremango">🔥 ARREMANGO</span>`;
+            } else if (bal > 0) {
+                celda.innerHTML = `<span class="badge win">✅ +$${bal}</span>`;
+            } else if (bal < 0) {
+                celda.innerHTML = `<span class="badge loss">💀 -$${Math.abs(bal)}</span>`;
+            } else {
+                celda.innerHTML = `<span class="badge cero">🃏 $0</span>`;
+            }
         });
     }
 
@@ -295,7 +336,7 @@
             total += inv;
             tbody.innerHTML += `
                 <tr>
-                    <td><button class="btn-del" onclick="eliminarJugador(${j.id})">X</button></td>
+                    <td><button class="btn-del" onclick="eliminarJugador(${j.id})">×</button></td>
                     <td><b>${j.nombre}</b></td>
                     <td>${j.manos} <button class="btn-plus" onclick="addMano(${j.id})">+</button></td>
                     <td>$${inv}</td>
@@ -320,8 +361,11 @@
         } else {
             alerta.style.display = "none";
             resDiv.style.display = "block";
-            let resHtml = "<b>RESUMEN:</b><br>";
-            mesa.forEach(j => resHtml += `${j.nombre}: ${j.balanceNeto >= 0 ? '+' : ''}$${j.balanceNeto}<br>`);
+            let resHtml = "<b>RESUMEN DE CUENTAS CLARAS:</b><br>";
+            mesa.forEach(j => {
+                const icon = j.balanceNeto > 0 ? "✅" : (j.balanceNeto < 0 ? "💀" : "🃏");
+                resHtml += `${icon} ${j.nombre}: ${j.balanceNeto >= 0 ? '+' : ''}$${j.balanceNeto}<br>`;
+            });
             document.getElementById('resumen-lista').innerHTML = resHtml;
         }
     }
@@ -329,30 +373,23 @@
     async function guardarPartida() {
         document.getElementById('loader').style.display = "flex";
         const now = new Date();
-        
-        // CORRECCIÓN IPHONE: Forzamos formato HH:MM manual
-        const horaLimpia = now.getHours().toString().padStart(2, '0') + ":" + 
-                           now.getMinutes().toString().padStart(2, '0');
+        const horaLimpia = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
 
         const payload = {
             idMes: `${meses[now.getMonth()]} ${now.getFullYear()}`,
-            fecha: document.getElementById('current-date').value.replace('FECHA: ', ''),
+            fecha: document.getElementById('current-date').value,
             hora: horaLimpia,
             jornada: document.getElementById('session-note').value,
             jugadores: mesa
         };
 
         try {
-            await fetch(SCRIPT_URL, { 
-                method: 'POST', 
-                mode: 'no-cors',
-                body: JSON.stringify(payload) 
-            });
-            alert("¡Partida Guardada!");
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            alert("¡Partida Guardada Exitosamente!");
             mesa = [];
             actualizarMesa();
-            setTimeout(fetchHistorial, 2000);
-        } catch (e) { alert("Error al guardar"); }
+            setTimeout(fetchHistorial, 1500);
+        } catch (e) { alert("Error de conexión"); }
         document.getElementById('loader').style.display = "none";
     }
 
@@ -361,12 +398,12 @@
             const res = await fetch(SCRIPT_URL);
             const data = await res.json();
             renderHistorial(data);
-        } catch (e) { console.log(e); }
+        } catch (e) { console.log("Cargando historial..."); }
     }
 
     function renderHistorial(data) {
         const cont = document.getElementById('historial-contenedor');
-        if(!data || !data.length) { cont.innerHTML = "<p style='text-align:center; color:var(--neutral);'>Sin datos registrados aún.</p>"; return; }
+        if(!data || !data.length) { cont.innerHTML = "<p style='text-align:center; color:var(--neutral);'>Aún no hay registros.</p>"; return; }
         
         cont.innerHTML = "";
         const grupos = {};
@@ -383,37 +420,30 @@
         Object.keys(grupos).forEach(idMes => {
             const g = grupos[idMes];
             const sesionesArr = Object.values(g.sesiones);
-            const idLimpio = idMes.replace(/\s+/g, '');
             cont.innerHTML += `
                 <div class="month-group">
-                    <div class="month-header" onclick="toggleMonth('${idLimpio}')">
-                        <span class="month-name">${idMes}</span>
-                        <span class="month-sum">PREMIOS: $${g.totalPremios}</span>
+                    <div class="month-header">
+                        <span class="month-name">📅 ${idMes}</span>
+                        <span style="color:var(--green); font-weight:bold;">$${g.totalPremios}</span>
                     </div>
-                    <div id="content-${idLimpio}" class="month-content">
+                    <div style="padding: 10px;">
                         ${sesionesArr.map((s, idx) => `
                             <div class="history-card">
-                                <div class="h-head"><b>JUEGO ${sesionesArr.length - idx}</b> <span>${s.fecha}</span></div>
+                                <div class="h-head"><span>JUEGO #${sesionesArr.length - idx}</span> <span>${s.fecha}</span></div>
                                 <div class="h-body">
                                     ${s.jugadores.map(j => `
                                         <div class="h-row">
                                             <span>${j.Jugador}</span>
-                                            <span style="color:${j.Resultado > 0 ? 'var(--green)' : (j.Resultado < 0 ? 'var(--red)' : '#888')}">
-                                                ${j.Resultado >= 0 ? '+' : ''}$${j.Resultado}
+                                            <span style="font-weight:bold; color:${j.Resultado > 0 ? 'var(--green)' : (j.Resultado < 0 ? 'var(--red)' : '#888')}">
+                                                ${j.Resultado > 0 ? '✅' : (j.Resultado < 0 ? '💀' : '🃏')} ${j.Resultado >= 0 ? '+' : ''}$${j.Resultado}
                                             </span>
                                         </div>`).join('')}
                                 </div>
-                                <div class="h-footer"><span>Terminó: ${s.hora}</span> <span>${s.jornada}</span></div>
                             </div>
                         `).join('')}
                     </div>
                 </div>`;
         });
-    }
-
-    function toggleMonth(id) {
-        const el = document.getElementById('content-' + id);
-        el.style.display = el.style.display === "none" ? "block" : "none";
     }
 
     setupDateTime();
