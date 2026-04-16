@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ludópatas FC - Elite Edition</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --panel: #161616;
+            --gold: #d4af37;
+            --red: #ff4d4d;
+            --green: #2ecc71;
+            --blue: #3498db;
+            --neutral: #888;
+            --text: #ffffff;
+            --border: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container { width: 100%; max-width: 950px; }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--gold);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        header h1 { color: var(--gold); text-transform: uppercase; letter-spacing: 3px; margin: 0; font-size: 1.8rem; }
+
+        .session-info { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .info-input {
+            background: #222;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--gold);
+            padding: 6px 15px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 850px) { .main-grid { grid-template-columns: 320px 1fr; } }
+
+        .card {
+            background: var(--panel);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            height: fit-content;
+        }
+
+        h2 { font-size: 0.9rem; color: var(--gold); margin: 0 0 15px 0; text-transform: uppercase; border-left: 3px solid var(--gold); padding-left: 10px; }
+
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.7rem; color: var(--neutral); margin-bottom: 4px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #222;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: #fff;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .btn-gold { background: var(--gold); color: #000; }
+        .btn-green { background: var(--green); color: #fff; margin-top: 15px; }
+        .btn-blue { background: var(--blue); color: #fff; margin-top: 10px; }
+        
+        .btn-plus {
+            background: #333;
+            color: var(--green);
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 2px 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .btn-del {
+            background: rgba(255, 77, 77, 0.15);
+            color: var(--red);
+            border: 1px solid var(--red);
+            border-radius: 4px;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; font-size: 0.65rem; color: var(--neutral); padding: 8px; border-bottom: 1px solid var(--border); }
+        td { padding: 12px 8px; border-bottom: 1px solid #222; font-size: 0.85rem; }
+
+        .monto-resultado { width: 85px; background: #000; border: 1px solid #444; color: var(--gold); text-align: center; padding: 6px; border-radius: 4px; font-weight: bold; }
+
+        .badge { padding: 4px 6px; border-radius: 4px; font-weight: bold; font-size: 0.65rem; text-transform: uppercase; display: inline-block; min-width: 110px; text-align: center; }
+        .win { background: rgba(46, 204, 113, 0.15); color: var(--green); }
+        .arremango { background: var(--blue); color: #fff; }
+        .loss { background: rgba(255, 77, 77, 0.15); color: var(--red); }
+        .chulio { background: #ff4d4d; color: #000; }
+        .cero { background: rgba(136, 136, 136, 0.15); color: var(--neutral); }
+
+        .alerta {
+            background: rgba(255, 77, 77, 0.1);
+            color: var(--red);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--red);
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* HISTORIAL */
+        .month-group { margin-top: 25px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+        .month-header {
+            background: #222;
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .month-name { color: var(--gold); font-weight: 900; text-transform: uppercase; }
+        .month-sum { font-size: 0.8rem; font-weight: bold; color: var(--green); }
+
+        .month-content { padding: 15px; background: #0c0c0c; }
+
+        .history-card {
+            background: var(--panel);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #222;
+            border-left: 5px solid var(--gold);
+        }
+        .h-head { background: #1a1a1a; padding: 10px; display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--neutral); border-bottom: 1px solid #222; }
+        .h-body { padding: 12px; }
+        .h-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #1f1f1f; font-size: 0.85rem; }
+        .h-footer { padding: 8px 12px; font-size: 0.7rem; color: var(--neutral); display: flex; justify-content: space-between; background: #111; }
+        
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+<div id="loader" class="loading-overlay"><div style="color:var(--gold)">PROCESANDO...</div></div>
+
+<div class="container">
+    <header><h1>Ludópatas FC</h1></header>
+
+    <div class="session-info">
+        <input type="text" id="current-date" class="info-input">
+        <input type="text" id="session-note" class="info-input">
+    </div>
+
+    <div class="main-grid">
+        <div class="card">
+            <h2>Nuevo Jugador</h2>
+            <div class="input-group">
+                <label>Nombre</label>
+                <input type="text" id="name" placeholder="Ej: MATIAS">
+            </div>
+            <div class="input-group">
+                <label>Manos Iniciales ($100)</label>
+                <input type="number" id="buys" value="1" min="1">
+            </div>
+            <button class="btn btn-gold" onclick="add()">Sentar</button>
+            <div style="margin-top:20px; text-align: center;">
+                <span style="color:var(--neutral); font-size: 0.75rem;">CAJA TOTAL</span><br>
+                <span id="total-in" style="color:var(--gold); font-size: 1.5rem; font-weight: bold;">$0</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Mesa de Juego</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Jugador</th>
+                            <th>Manos</th>
+                            <th>Inv.</th>
+                            <th>Resultado</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-mesa"></tbody>
+                </table>
+            </div>
+            <button class="btn btn-green" onclick="liquidar()" style="margin-top:15px;">Finalizar y Cuadrar</button>
+            <div id="msg-alerta" class="alerta"></div>
+
+            <div id="resumen-final" style="display:none; margin-top:20px; padding:15px; background:#000; border-radius:8px; border: 1px solid var(--blue);">
+                <div id="resumen-lista" style="font-size: 0.85rem; margin-bottom: 15px;"></div>
+                <button class="btn btn-blue" onclick="guardarPartida()">Guardar en Historial Mensual</button>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 40px;">
+        <h2 style="color:var(--neutral); border-color:var(--neutral);">Registro Histórico</h2>
+        <div id="historial-contenedor">
+            <p style="text-align:center; color:var(--neutral);">Cargando historial...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby4PWkSrFDklEVIyGbBObjSYD_zURS--TUZkyrk_BWMkYNrZ89ECGTBsJzrF2wHE4Zu/exec";
+    let mesa = [];
+    const VALOR_MANO = 100;
+    const meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
+
+    function setupDateTime() {
+        const now = new Date();
+        document.getElementById('current-date').value = `FECHA: ${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+        document.getElementById('session-note').value = now.getHours() >= 12 ? 'JORNADA: PM' : 'JORNADA: AM';
+    }
+
+    function add() {
+        const n = document.getElementById('name').value.toUpperCase();
+        const b = parseInt(document.getElementById('buys').value);
+        if(!n) return;
+        mesa.push({ id: Date.now(), nombre: n, manos: b, balanceNeto: 0 });
+        document.getElementById('name').value = "";
+        actualizarMesa();
+    }
+
+    function addMano(id) {
+        const j = mesa.find(x => x.id === id);
+        if(j) { j.manos += 1; actualizarMesa(); }
+    }
+
+    function eliminarJugador(id) {
+        if(confirm("¿Eliminar jugador de la mesa?")) {
+            mesa = mesa.filter(j => j.id !== id);
+            actualizarMesa();
+        }
+    }
+
+    function setNeto(id, val) {
+        const j = mesa.find(x => x.id === id);
+        if(j) j.balanceNeto = parseFloat(val) || 0;
+        updateBadges();
+    }
+
+    function updateBadges() {
+        mesa.forEach(j => {
+            const celda = document.getElementById(`saldo-${j.id}`);
+            if(!celda) return;
+            const bal = j.balanceNeto;
+            if (bal >= 200) celda.innerHTML = `<span class="badge arremango">ARREMANGO</span>`;
+            else if (bal > 0) celda.innerHTML = `<span class="badge win">+$${bal}</span>`;
+            else if (bal <= -100) celda.innerHTML = `<span class="badge chulio">CHULIO</span>`;
+            else if (bal < 0) celda.innerHTML = `<span class="badge loss">-$${Math.abs(bal)}</span>`;
+            else celda.innerHTML = `<span class="badge cero">EN MESA</span>`;
+        });
+    }
+
+    function actualizarMesa() {
+        const tbody = document.getElementById('lista-mesa');
+        tbody.innerHTML = "";
+        let total = 0;
+        mesa.forEach(j => {
+            const inv = j.manos * VALOR_MANO;
+            total += inv;
+            tbody.innerHTML += `
+                <tr>
+                    <td><button class="btn-del" onclick="eliminarJugador(${j.id})">X</button></td>
+                    <td><b>${j.nombre}</b></td>
+                    <td>${j.manos} <button class="btn-plus" onclick="addMano(${j.id})">+</button></td>
+                    <td>$${inv}</td>
+                    <td><input type="number" step="10" class="monto-resultado" value="${j.balanceNeto}" onchange="setNeto(${j.id}, this.value)"></td>
+                    <td id="saldo-${j.id}"></td>
+                </tr>`;
+        });
+        document.getElementById('total-in').innerText = "$" + total.toLocaleString();
+        document.getElementById('resumen-final').style.display = "none";
+        updateBadges();
+    }
+
+    function liquidar() {
+        let suma = 0;
+        mesa.forEach(j => suma += j.balanceNeto);
+        const alerta = document.getElementById('msg-alerta');
+        const resDiv = document.getElementById('resumen-final');
+        if(suma !== 0) {
+            alerta.style.display = "block";
+            alerta.innerText = suma > 0 ? `⚠️ SOBRAN $${suma}` : `⚠️ FALTAN $${Math.abs(suma)}`;
+            resDiv.style.display = "none";
+        } else {
+            alerta.style.display = "none";
+            resDiv.style.display = "block";
+            let resHtml = "<b>RESUMEN:</b><br>";
+            mesa.forEach(j => resHtml += `${j.nombre}: ${j.balanceNeto >= 0 ? '+' : ''}$${j.balanceNeto}<br>`);
+            document.getElementById('resumen-lista').innerHTML = resHtml;
+        }
+    }
+
+    async function guardarPartida() {
+        document.getElementById('loader').style.display = "flex";
+        const now = new Date();
+        const payload = {
+            idMes: `${meses[now.getMonth()]} ${now.getFullYear()}`,
+            fecha: document.getElementById('current-date').value.replace('FECHA: ', ''),
+            hora: now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+            jornada: document.getElementById('session-note').value,
+            jugadores: mesa
+        };
+
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+            alert("¡Partida Guardada!");
+            mesa = [];
+            actualizarMesa();
+            fetchHistorial();
+        } catch (e) { alert("Error al guardar"); }
+        document.getElementById('loader').style.display = "none";
+    }
+
+    async function fetchHistorial() {
+        try {
+            const res = await fetch(SCRIPT_URL);
+            const data = await res.json();
+            renderHistorial(data);
+        } catch (e) { console.log(e); }
+    }
+
+    function renderHistorial(data) {
+        const cont = document.getElementById('historial-contenedor');
+        if(!data.length) { cont.innerHTML = "<p>Sin datos.</p>"; return; }
+        
+        cont.innerHTML = "";
+        const grupos = {};
+        data.reverse().forEach(row => {
+            if(!grupos[row.ID_Mes]) grupos[row.ID_Mes] = { sesiones: {}, totalPremios: 0 };
+            const sesionKey = row.Fecha + row.Hora;
+            if(!grupos[row.ID_Mes].sesiones[sesionKey]) {
+                grupos[row.ID_Mes].sesiones[sesionKey] = { fecha: row.Fecha, hora: row.Hora, jornada: row.Jornada, jugadores: [] };
+            }
+            grupos[row.ID_Mes].sesiones[sesionKey].jugadores.push(row);
+            if(row.Resultado > 0) grupos[row.ID_Mes].totalPremios += row.Resultado;
+        });
+
+        Object.keys(grupos).forEach(idMes => {
+            const g = grupos[idMes];
+            const sesionesArr = Object.values(g.sesiones);
+            cont.innerHTML += `
+                <div class="month-group">
+                    <div class="month-header" onclick="toggleMonth('${idMes}')">
+                        <span class="month-name">${idMes}</span>
+                        <span class="month-sum">PREMIOS: $${g.totalPremios}</span>
+                    </div>
+                    <div id="content-${idMes.replace(' ','')}" class="month-content">
+                        ${sesionesArr.map((s, idx) => `
+                            <div class="history-card">
+                                <div class="h-head"><b>JUEGO ${sesionesArr.length - idx}</b> <span>${s.fecha}</span></div>
+                                <div class="h-body">
+                                    ${s.jugadores.map(j => `
+                                        <div class="h-row">
+                                            <span>${j.Jugador}</span>
+                                            <span style="color:${j.Resultado > 0 ? 'var(--green)' : (j.Resultado < 0 ? 'var(--red)' : '#888')}">
+                                                ${j.Resultado >= 0 ? '+' : ''}$${j.Resultado}
+                                            </span>
+                                        </div>`).join('')}
+                                </div>
+                                <div class="h-footer"><span>Terminó: ${s.hora}</span> <span>${s.jornada}</span></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+        });
+    }
+
+    function toggleMonth(id) {
+        const el = document.getElementById('content-' + id.replace(' ',''));
+        el.style.display = el.style.display === "none" ? "block" : "none";
+    }
+
+    setupDateTime();
+    fetchHistorial();
+</script>
+</body>
+</html>
