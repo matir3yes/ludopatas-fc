@@ -235,7 +235,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxudr6kTxG6d0BRHXz6t7z6Go7KR5IPrwn89BrhtiFoc9JaVlX6s8PNKsxtnaZn79yN/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv6C_KWQbdpysFrNtSnA48KVBzfBahbilu0JeghewirAwqEvKPwHPHfyPB0onbwHK_/exec";
     let mesa = [];
     const VALOR_MANO = 100;
     const meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
@@ -329,10 +329,15 @@
     async function guardarPartida() {
         document.getElementById('loader').style.display = "flex";
         const now = new Date();
+        
+        // CORRECCIÓN IPHONE: Forzamos formato HH:MM manual
+        const horaLimpia = now.getHours().toString().padStart(2, '0') + ":" + 
+                           now.getMinutes().toString().padStart(2, '0');
+
         const payload = {
             idMes: `${meses[now.getMonth()]} ${now.getFullYear()}`,
             fecha: document.getElementById('current-date').value.replace('FECHA: ', ''),
-            hora: now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+            hora: horaLimpia,
             jornada: document.getElementById('session-note').value,
             jugadores: mesa
         };
