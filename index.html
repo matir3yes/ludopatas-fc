@@ -36,7 +36,6 @@
             border-bottom: 2px solid var(--gold);
             padding-bottom: 10px;
             margin-bottom: 20px;
-            position: relative;
         }
 
         header h1 { 
@@ -63,58 +62,32 @@
 
         .session-info { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
         .info-input {
-            background: #222;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            color: var(--gold);
-            padding: 8px 12px;
-            font-size: 0.75rem;
-            text-align: center;
-            width: 45%;
+            background: #222; border: 1px solid var(--border); border-radius: 20px;
+            color: var(--gold); padding: 8px 12px; font-size: 0.75rem; text-align: center; width: 45%;
         }
 
         .main-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
         @media (min-width: 850px) { .main-grid { grid-template-columns: 320px 1fr; } }
 
         .card {
-            background: var(--panel);
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-            height: fit-content;
+            background: var(--panel); padding: 15px; border-radius: 12px;
+            border: 1px solid var(--border); box-shadow: 0 8px 16px rgba(0,0,0,0.5); height: fit-content;
         }
 
         h2 { font-size: 0.85rem; color: var(--gold); margin: 0 0 15px 0; text-transform: uppercase; border-left: 3px solid var(--gold); padding-left: 10px; }
 
-        .input-group { margin-bottom: 12px; }
-        label { display: block; font-size: 0.7rem; color: var(--neutral); margin-bottom: 4px; }
         input {
-            width: 100%;
-            padding: 12px;
-            background: #222;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: #fff;
-            box-sizing: border-box;
-            font-size: 1rem;
+            width: 100%; padding: 12px; background: #222; border: 1px solid var(--border);
+            border-radius: 8px; color: #fff; box-sizing: border-box; font-size: 1rem;
         }
 
         .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: 0.2s;
-            font-size: 0.9rem;
+            width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold;
+            cursor: pointer; text-transform: uppercase; transition: 0.2s; font-size: 0.9rem;
         }
 
         .btn-gold { background: var(--gold); color: #000; box-shadow: 0 4px 0 #967c29; }
         .btn-gold:active { transform: translateY(2px); box-shadow: 0 2px 0 #967c29; }
-        
         .btn-green { background: var(--green); color: #fff; margin-top: 15px; }
         .btn-blue { background: var(--blue); color: #fff; margin-top: 10px; }
         
@@ -149,27 +122,21 @@
             margin-top: 15px; text-align: center; font-weight: bold; display: none;
         }
 
-        /* DISEÑO DEL ACORDEÓN */
+        /* HISTORIAL ACORDEÓN MEJORADO */
         .month-group { margin-top: 15px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
         .month-header {
-            background: #222;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer; /* Indica que es clickeable */
-            transition: background 0.3s;
+            background: #222; padding: 15px; display: flex; justify-content: space-between;
+            align-items: center; cursor: pointer; border-bottom: 1px solid #333;
         }
-        .month-header:hover { background: #2a2a2a; }
         .month-name { color: var(--gold); font-weight: 900; }
-        .month-content { padding: 10px; display: none; background: #0c0c0c; } /* Oculto por defecto */
+        
+        /* Contenido oculto por defecto usando una clase CSS */
+        .month-content { padding: 10px; background: #0c0c0c; display: none; }
+        .month-content.show { display: block !important; }
 
         .history-card {
-            background: var(--panel);
-            border-radius: 8px;
-            margin-bottom: 12px;
-            border-left: 5px solid var(--gold);
-            overflow: hidden;
+            background: var(--panel); border-radius: 8px; margin-bottom: 12px;
+            border-left: 5px solid var(--gold); overflow: hidden;
         }
         .h-head { background: #1a1a1a; padding: 10px; display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--neutral); }
         .h-body { padding: 10px; }
@@ -200,12 +167,12 @@
     <div class="main-grid">
         <div class="card">
             <h2>Nuevo Jugador</h2>
-            <div class="input-group">
-                <label>Nombre del Jugador</label>
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 0.7rem; color: var(--neutral); margin-bottom: 4px;">Nombre del Jugador</label>
                 <input type="text" id="name" placeholder="Ej: BILLO">
             </div>
-            <div class="input-group">
-                <label>Manos Compradas ($100 c/u)</label>
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 0.7rem; color: var(--neutral); margin-bottom: 4px;">Manos Compradas ($100)</label>
                 <input type="number" id="buys" value="1" min="1">
             </div>
             <button class="btn btn-gold" onclick="add()">Sentar en Mesa</button>
@@ -357,7 +324,7 @@
         };
         try {
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert("¡Partida Guardada Exitosamente!");
+            alert("¡Partida Guardada!");
             mesa = [];
             actualizarMesa();
             setTimeout(fetchHistorial, 1500);
@@ -370,7 +337,7 @@
             const res = await fetch(SCRIPT_URL);
             const data = await res.json();
             renderHistorial(data);
-        } catch (e) { console.log("Cargando..."); }
+        } catch (e) { console.log("Error al cargar historial"); }
     }
 
     function renderHistorial(data) {
@@ -391,7 +358,7 @@
         Object.keys(grupos).forEach(idMes => {
             const g = grupos[idMes];
             const sesionesArr = Object.values(g.sesiones);
-            const idLimpio = idMes.replace(/\s+/g, ''); // Quitamos espacios para el ID del HTML
+            const idLimpio = idMes.replace(/\s+/g, '_'); // ID único sin espacios
             
             cont.innerHTML += `
                 <div class="month-group">
@@ -402,7 +369,7 @@
                     <div id="content-${idLimpio}" class="month-content">
                         ${sesionesArr.map((s, idx) => `
                             <div class="history-card">
-                                <div class="h-head"><span>SESIÓN #${sesionesArr.length - idx}</span> <span>${s.fecha} - ${s.hora}</span></div>
+                                <div class="h-head"><span>JUEGO #${sesionesArr.length - idx}</span> <span>${s.fecha} - ${s.hora}</span></div>
                                 <div class="h-body">
                                     ${s.jugadores.map(j => `
                                         <div class="h-row">
@@ -419,13 +386,11 @@
         });
     }
 
-    // FUNCIÓN PARA CONTRAER/EXPANDIR MESES
+    // NUEVA FUNCIÓN TOGGLE REFORZADA
     function toggleMonth(id) {
         const el = document.getElementById('content-' + id);
-        if (el.style.display === "block") {
-            el.style.display = "none";
-        } else {
-            el.style.display = "block";
+        if (el) {
+            el.classList.toggle('show');
         }
     }
 
