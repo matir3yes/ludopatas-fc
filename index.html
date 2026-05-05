@@ -3,71 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sincronización Black King</title>
+    <title>Black King Automotriz - Sync</title>
     <style>
         :root { --gold: #d4af37; --bg: #0a0a0a; --panel: #161616; --text: #eee; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
-        .card { background: var(--panel); border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
-        .error-msg { color: #ff4d4d; border: 1px solid #ff4d4d; padding: 10px; margin-bottom: 10px; display: none; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .card { background: var(--panel); border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .status-badge { padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
+        .ok { background: #2ecc71; color: #000; }
+        .error { background: #ff4d4d; color: #fff; }
     </style>
 </head>
 <body>
 
-    <header style="text-align:center; border-bottom: 2px solid var(--gold); padding-bottom:10px;">
-        <h2 style="color:var(--gold);">BLACK KING AUTOMOTRIZ</h2>
+    <header style="text-align:center; border-bottom: 2px solid var(--gold); padding-bottom:15px; margin-bottom:20px;">
+        <h1 style="color:var(--gold); margin:0; font-size:1.2rem;">INGENIERÍA DE MESA</h1>
+        <small>Sincronización con Black King Automotriz</small>
     </header>
 
-    <div id="error-box" class="error-msg"></div>
-
     <div class="card">
-        <h3>Estado de Sincronización</h3>
-        <p id="status">Conectando con Google Sheets...</p>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Estado del Servidor:</span>
+            <span id="status" class="status-badge error">DESCONECTADO</span>
+        </div>
     </div>
 
     <div class="card">
-        <h3>Historial Reciente</h3>
-        <div id="historial-container">Cargando datos...</div>
+        <h3 style="color:var(--gold); font-size:0.9rem; margin-top:0;">ÚLTIMOS REGISTROS (LOG)</h3>
+        <div id="historial-container" style="font-size:0.85rem; line-height:1.6;">
+            Esperando respuesta del servidor...
+        </div>
     </div>
 
 <script>
-    // TU LINK ACTUALIZADO
+    // REEMPLAZA ESTA URL CON LA QUE COPIASTE EN EL PASO 1
     const API_URL = "https://script.google.com/macros/s/AKfycbzc3MvOrmfyz2NMxq-d-Y8BA8xD6QCgnTGMUMB4ZWdYO1aIVPvRbGhP2xvfMIUbVCzP/exec";
 
-    async function cargarDatos() {
+    async function conectar() {
         const status = document.getElementById('status');
-        const errorBox = document.getElementById('error-box');
         const container = document.getElementById('historial-container');
 
         try {
-            const res = await fetch(API_URL);
-            const data = await res.json();
-
-            if (data.error) {
-                throw new Error("Error en Script: " + data.error);
-            }
-
-            status.innerText = "✅ Sistema Conectado";
+            // Intentamos la conexión
+            const response = await fetch(API_URL);
             
-            // Renderizar Historial
+            if (!response.ok) throw new Error("Respuesta no válida");
+
+            const data = await response.json();
+
+            status.innerText = "CONECTADO";
+            status.className = "status-badge ok";
+
             if (data.historial && data.historial.length > 0) {
-                container.innerHTML = data.historial.slice(-5).map(h => `
-                    <div style="border-bottom:1px solid #333; padding:5px; font-size:0.8rem;">
-                        ${h.Fecha} | ${h.Jugador} | <b>$${h.Resultado}</b>
+                // Mostramos los últimos 5 registros para verificar que lee bien
+                container.innerHTML = data.historial.slice(-5).reverse().map(h => `
+                    <div style="border-bottom:1px solid #333; padding:8px 0;">
+                        <span style="color:#888;">${h.Fecha}</span> | 
+                        <span style="color:var(--gold);">${h.Jugador}</span> | 
+                        <span style="color:${h.Resultado >= 0 ? '#2ecc71' : '#ff4d4d'};">
+                            $${h.Resultado}
+                        </span>
                     </div>
                 `).join('');
             } else {
-                container.innerHTML = "No hay datos en la pestaña LOG.";
+                container.innerHTML = "Conectado, pero no hay datos en la pestaña LOG.";
             }
 
-        } catch (e) {
-            status.innerText = "❌ Error de Conexión";
-            errorBox.style.display = "block";
-            errorBox.innerText = "ERROR TÉCNICO: " + e.message + ". Verifica que las pestañas LOG y SOCIOS existan.";
-            console.error(e);
+        } catch (error) {
+            console.error("Error detectado:", error);
+            status.innerText = "ERROR DE VÍNCULO";
+            status.className = "status-badge error";
+            container.innerHTML = `
+                <p style="color:#ff4d4d;">⚠️ <b>Fallo de Red:</b></p>
+                <ol>
+                    <li>Verifica que el Script esté publicado como <b>"Cualquier persona"</b>.</li>
+                    <li>Acepta los permisos de Google si te lo pide al publicar.</li>
+                    <li>Asegúrate de estar usando el link de "Ejecución" y no el de "Editor".</li>
+                </ol>
+            `;
         }
     }
 
-    window.onload = cargarDatos;
+    window.onload = conectar;
 </script>
 </body>
 </html>
