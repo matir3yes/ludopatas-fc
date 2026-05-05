@@ -3,27 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ludópatas FC - Panel de Control</title>
+    <title>Ludópatas FC - Gestión Elite</title>
     <style>
         :root { --gold: #d4af37; --bg: #0a0a0a; --panel: #161616; --border: #333; --text: #eee; --red: #ff4d4d; --green: #2ecc71; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 10px; margin: 0; }
         .container { max-width: 900px; margin: auto; }
-        header { text-align: center; border-bottom: 2px solid var(--gold); margin-bottom: 15px; }
-        h1 { color: var(--gold); letter-spacing: 2px; margin: 5px 0; font-size: 1.5rem; }
-        .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 15px; overflow-x: auto; }
-        h2 { color: var(--gold); font-size: 0.75rem; text-transform: uppercase; border-left: 3px solid var(--gold); padding-left: 10px; margin-bottom: 10px; }
+        header { text-align: center; border-bottom: 2px solid var(--gold); margin-bottom: 15px; padding: 10px; }
+        h1 { color: var(--gold); letter-spacing: 2px; margin: 0; font-size: 1.3rem; }
+        .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 15px; }
         
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        th { text-align: left; color: #888; padding: 8px; border-bottom: 1px solid var(--border); }
-        td { padding: 8px; border-bottom: 1px solid #222; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-left: 3px solid var(--gold); padding-left: 10px; }
+        .card-header h2 { color: var(--gold); font-size: 0.75rem; text-transform: uppercase; margin: 0; }
+        .toggle-icon { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
+        
+        .collapsible-content { display: block; overflow-x: auto; margin-top: 15px; }
+        .collapsed { display: none; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 480px; }
+        th { text-align: left; color: #888; padding: 10px; border-bottom: 1px solid var(--border); }
+        td { padding: 10px; border-bottom: 1px solid #222; }
         
         .btn { padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; }
         .btn-gold { background: var(--gold); color: #000; width: 100%; margin-bottom: 10px; }
         .btn-green { background: var(--green); color: #fff; width: 100%; }
-        .btn-op { padding: 4px 8px; background: #333; color: white; border-radius: 4px; }
+        .btn-op { padding: 5px 10px; background: #333; color: white; border-radius: 4px; border: 1px solid #444; }
         
-        input { background: #222; border: 1px solid #444; color: white; padding: 5px; border-radius: 4px; width: 60px; }
-        select { width: 100%; padding: 10px; background: #222; color: white; border-radius: 8px; margin-bottom: 10px; }
+        input { background: #222; border: 1px solid #444; color: white; padding: 8px; border-radius: 4px; width: 70px; text-align: center; }
+        select { width: 100%; padding: 12px; background: #222; color: white; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border); }
         
         .status-win { color: var(--green); font-weight: bold; }
         .status-loss { color: var(--red); font-weight: bold; }
@@ -35,53 +41,66 @@
 <div class="container">
     <header>
         <h1>LUDÓPATAS FC</h1>
-        <div style="font-size:0.6rem; color:#666;">CONTROL DE MESA - BLACK KING AUTOMOTRIZ</div>
+        <div style="font-size:0.6rem; color:#666;">CONTROL DE JORNADA - BLACK KING AUTOMOTRIZ</div>
     </header>
 
-    <!-- MESA EN VIVO -->
+    <!-- SECCIÓN 1: MESA EN VIVO -->
     <div class="card">
-        <h2>Mesa en Vivo</h2>
-        <select id="sel-socio"></select>
-        <button class="btn btn-gold" onclick="sentarJugador()">Sentar en Mesa</button>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>Jugador</th>
-                    <th>Manos</th>
-                    <th>Inversión</th>
-                    <th>Cierre</th>
-                    <th>Estado</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="tabla-mesa"></tbody>
-        </table>
-
-        <div id="controles-finales" style="display:none; margin-top:15px; border-top:1px solid #444; padding-top:10px;">
-            <div id="txt-cuadre" style="text-align:center; font-weight:bold; margin-bottom:10px; font-size:0.8rem;"></div>
-            <button class="btn btn-green" onclick="enviarReporte()">Sincronizar y Cerrar</button>
+        <div class="card-header" onclick="toggleSection('mesa-content', 'mesa-icon')">
+            <h2>Mesa en Vivo</h2>
+            <span id="mesa-icon" class="toggle-icon">−</span>
+        </div>
+        <div id="mesa-content" class="collapsible-content">
+            <select id="sel-socio"></select>
+            <button class="btn btn-gold" onclick="sentarJugador()">Sentar Jugador</button>
+            <table>
+                <thead>
+                    <tr><th>Jugador</th><th>Manos</th><th>Inv.</th><th>Cierre</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody id="tabla-mesa"></tbody>
+            </table>
+            <div id="controles-finales" style="display:none; margin-top:20px; border-top:1px solid #444; padding-top:10px;">
+                <div id="txt-cuadre" style="text-align:center; font-weight:bold; margin-bottom:10px; font-size:0.85rem;"></div>
+                <button id="btn-sync" class="btn btn-green" onclick="enviarReporte()">Sincronizar Partida</button>
+            </div>
         </div>
     </div>
 
-    <!-- COBROS -->
+    <!-- SECCIÓN 2: COBROS (COLAPSABLE) -->
     <div class="card" style="border-color: var(--green);">
-        <h2>Cobros Mensuales (Corte 21)</h2>
-        <select id="filtro-mes" onchange="actualizarVistas()"></select>
-        <div id="lista-cobros"></div>
+        <div class="card-header" onclick="toggleSection('cobros-content', 'cobros-icon')">
+            <h2>Cobros Mensuales (Corte 21)</h2>
+            <span id="cobros-icon" class="toggle-icon">+</span>
+        </div>
+        <div id="cobros-content" class="collapsible-content collapsed">
+            <select id="filtro-mes" onchange="actualizarVistas()"></select>
+            <div id="lista-cobros"></div>
+        </div>
     </div>
 
-    <!-- HISTORIAL -->
+    <!-- SECCIÓN 3: HISTORIAL (COLAPSABLE) -->
     <div class="card">
-        <h2>Historial de Partidas</h2>
-        <div id="historial-partidas"></div>
+        <div class="card-header" onclick="toggleSection('historial-content', 'historial-icon')">
+            <h2>Historial de Partidas</h2>
+            <span id="historial-icon" class="toggle-icon">+</span>
+        </div>
+        <div id="historial-content" class="collapsible-content collapsed">
+            <div id="historial-partidas"></div>
+        </div>
     </div>
 </div>
 
 <script>
-    const URL = "https://script.google.com/macros/s/AKfycbzEDAW59LMsubsUHWaO7NCBp4Fp5tuogSmhHljTEBJjF9QElvPgXb6X9GrIbdraOnNI/exec";
+    const URL = "https://script.google.com/macros/s/AKfycbzDQqqwqk3Yf0wWSxhg55jShlldt45TjRNNDZMOkNBRlpSgqzPGoQrDnCXCdlS83DF6/exec";
     let db = { socios: [], historial: [] };
     let mesa = [];
+
+    function toggleSection(contentId, iconId) {
+        const content = document.getElementById(contentId);
+        const icon = document.getElementById(iconId);
+        content.classList.toggle('collapsed');
+        icon.innerText = content.classList.contains('collapsed') ? '+' : '−';
+    }
 
     async function init() {
         const res = await fetch(URL);
@@ -102,12 +121,7 @@
     function ajustarManos(idx, delta) {
         mesa[idx].manos = Math.max(1, mesa[idx].manos + delta);
         mesa[idx].inversion = mesa[idx].manos * 100;
-        calcularFila(idx);
-    }
-
-    function calcularFila(idx) {
-        const j = mesa[idx];
-        j.balance = j.cierre - j.inversion;
+        mesa[idx].balance = mesa[idx].cierre - mesa[idx].inversion;
         renderMesa();
     }
 
@@ -115,19 +129,15 @@
         const tbody = document.getElementById('tabla-mesa');
         tbody.innerHTML = mesa.map((j, i) => `
             <tr>
-                <td style="font-weight:bold;">${j.nombre}</td>
+                <td style="font-weight:bold; color:var(--gold);">${j.nombre}</td>
                 <td>
                     <button class="btn-op" onclick="ajustarManos(${i},-1)">-</button>
-                    <span style="margin:0 5px;">${j.manos}</span>
+                    <span style="display:inline-block; width:15px; text-align:center;">${j.manos}</span>
                     <button class="btn-op" onclick="ajustarManos(${i},1)">+</button>
                 </td>
                 <td>$${j.inversion}</td>
-                <td>
-                    <input type="number" value="${j.cierre}" onchange="mesa[${i}].cierre=parseFloat(this.value)||0; calcularFila(${i})">
-                </td>
-                <td class="${j.balance > 0 ? 'status-win' : (j.balance < 0 ? 'status-loss' : 'status-zero')}">
-                    ${j.balance > 0 ? '+' : ''}$${j.balance}
-                </td>
+                <td><input type="number" value="${j.cierre}" oninput="mesa[${i}].cierre=parseFloat(this.value)||0; mesa[${i}].balance=mesa[${i}].cierre-mesa[${i}].inversion; renderMesa()"></td>
+                <td class="${j.balance > 0 ? 'status-win' : (j.balance < 0 ? 'status-loss' : 'status-zero')}">${j.balance > 0 ? '+' : ''}$${j.balance}</td>
                 <td><button class="btn-op" onclick="mesa.splice(${i},1);renderMesa()">❌</button></td>
             </tr>
         `).join('');
@@ -136,50 +146,39 @@
         const totalCie = mesa.reduce((sum, j) => sum + j.cierre, 0);
         const diff = totalCie - totalInv;
         
-        const txtCuadre = document.getElementById('txt-cuadre');
-        txtCuadre.innerHTML = `Inversión: $${totalInv} | Cierre: $${totalCie} <br> 
+        document.getElementById('txt-cuadre').innerHTML = `INV: $${totalInv} | CIERRE: $${totalCie} <br> 
                                <span style="color:${diff === 0 ? 'var(--green)' : 'var(--red)'}">
                                ${diff === 0 ? 'MESA CUADRADA ✅' : 'DIFERENCIA: $' + diff}</span>`;
         
         document.getElementById('controles-finales').style.display = mesa.length > 0 ? 'block' : 'none';
+        document.getElementById('btn-sync').disabled = (diff !== 0);
     }
 
     async function enviarReporte() {
-        const totalInv = mesa.reduce((sum, j) => sum + j.inversion, 0);
-        const totalCie = mesa.reduce((sum, j) => sum + j.cierre, 0);
-        if (totalInv !== totalCie) {
-            if (!confirm("La mesa no cuadra. ¿Deseas guardar de todas formas?")) return;
-        }
-
         const payload = {
             fecha: new Date().toLocaleDateString('es-CL'),
             hora: new Date().toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'}),
             jornada: "PARTIDA " + new Date().toLocaleDateString(),
             jugadores: mesa.map(j => ({ nombre: j.nombre, inversion: j.inversion, balanceNeto: j.balance }))
         };
-
         await fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        alert("Datos sincronizados con éxito.");
-        location.reload();
+        alert("Partida sincronizada."); location.reload();
     }
 
     function actualizarVistas() {
         const periodo = document.getElementById('filtro-mes').value;
         const filtrado = db.historial.filter(h => h.ID_Mes === periodo);
-        
-        // Cobros
         let saldos = {};
         db.socios.forEach(s => saldos[s] = 0);
         filtrado.forEach(r => { if(saldos[r.Jugador] !== undefined) saldos[r.Jugador] += parseFloat(r.Resultado); });
         
         document.getElementById('lista-cobros').innerHTML = Object.entries(saldos).map(([n, t]) => `
-            <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #222; font-size:0.85rem;">
+            <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #222; font-size:0.85rem;">
                 <span>${n}</span>
                 <span class="${t > 0 ? 'status-win' : (t < 0 ? 'status-loss' : 'status-zero')}">${t > 0 ? '+' : ''}$${t}</span>
             </div>
         `).join('');
 
-        // Historial
         let sesiones = {};
         filtrado.forEach(r => {
             const id = r.Fecha + r.Hora;
@@ -188,16 +187,11 @@
         });
 
         document.getElementById('historial-partidas').innerHTML = Object.values(sesiones).reverse().map(s => `
-            <div style="background:#111; border:1px solid #222; border-radius:8px; margin-bottom:10px; overflow:hidden;">
-                <div style="background:#1a1a1a; padding:5px 10px; font-size:0.7rem; color:var(--gold); display:flex; justify-content:space-between;">
+            <div style="background:#111; border:1px solid #222; border-radius:8px; margin-bottom:12px; overflow:hidden;">
+                <div style="background:#1a1a1a; padding:5px 12px; font-size:0.7rem; color:var(--gold); display:flex; justify-content:space-between;">
                     <span>📅 ${s.f}</span> <span>⏰ ${s.h}</span>
                 </div>
-                ${s.p.map(j => `
-                    <div style="display:flex; justify-content:space-between; padding:5px 10px; font-size:0.8rem;">
-                        <span>${j.Jugador}</span>
-                        <span class="${j.Resultado > 0 ? 'status-win' : (j.Resultado < 0 ? 'status-loss' : 'status-zero')}">${j.Resultado > 0 ? '+' : ''}$${j.Resultado}</span>
-                    </div>
-                `).join('')}
+                ${s.p.map(j => `<div style="display:flex; justify-content:space-between; padding:5px 12px; font-size:0.8rem;"><span>${j.Jugador}</span><span class="${j.Resultado > 0 ? 'status-win' : (j.Resultado < 0 ? 'status-loss' : 'status-zero')}">${j.Resultado > 0 ? '+' : ''}$${j.Resultado}</span></div>`).join('')}
             </div>
         `).join('');
     }
