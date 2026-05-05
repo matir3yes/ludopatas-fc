@@ -3,25 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ludópatas FC - Gestión Profesional</title>
+    <title>Ludópatas FC - Elite Control</title>
     <style>
-        :root { --gold: #d4af37; --bg: #0a0a0a; --panel: #161616; --border: #333; --text: #eee; --red: #ff4d4d; --green: #2ecc71; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
-        .container { max-width: 600px; margin: auto; }
+        :root { --gold: #d4af37; --bg: #0a0a0a; --panel: #161616; --border: #333; --text: #eee; --red: #ff4d4d; --green: #2ecc71; --blue: #3498db; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
+        .container { max-width: 800px; margin: auto; }
         header { text-align: center; border-bottom: 2px solid var(--gold); margin-bottom: 20px; padding-bottom: 10px; }
-        h1 { color: var(--gold); margin: 0; letter-spacing: 2px; font-size: 1.5rem; }
+        h1 { color: var(--gold); letter-spacing: 2px; margin: 0; }
         .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
-        h2 { color: var(--gold); font-size: 0.9rem; text-transform: uppercase; margin-top: 0; border-left: 3px solid var(--gold); padding-left: 10px; }
-        select, input { width: 100%; padding: 12px; background: #222; border: 1px solid var(--border); border-radius: 8px; color: #fff; margin-bottom: 10px; box-sizing: border-box; font-size: 1rem; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        h2 { color: var(--gold); font-size: 0.85rem; text-transform: uppercase; border-left: 3px solid var(--gold); padding-left: 10px; }
+        select, input { width: 100%; padding: 12px; background: #222; border: 1px solid var(--border); border-radius: 8px; color: #fff; margin-bottom: 10px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         .btn-gold { background: var(--gold); color: #000; }
-        .btn-green { background: var(--green); color: #fff; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; font-size: 0.7rem; color: var(--gold); padding: 8px; border-bottom: 1px solid var(--border); }
-        td { padding: 10px 8px; border-bottom: 1px solid #222; font-size: 0.9rem; }
-        .cobro-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222; font-size: 0.9rem; }
-        .debe { color: var(--red); font-weight: bold; }
-        .favor { color: var(--green); font-weight: bold; }
+        .btn-green { background: var(--green); color: #fff; }
+        
+        /* Estilos Historial */
+        .session-block { background: #111; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--blue); overflow: hidden; }
+        .session-header { background: #1a1a1a; padding: 10px; font-size: 0.75rem; display: flex; justify-content: space-between; color: #888; }
+        .session-body { padding: 10px; }
+        .row-player { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #222; font-size: 0.85rem; }
+        
+        /* Estilos Cobros */
+        .cobro-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; font-size: 0.9rem; font-weight: bold; }
+        .debe { color: var(--red); }
+        .favor { color: var(--green); }
     </style>
 </head>
 <body>
@@ -29,135 +34,137 @@
 <div class="container">
     <header>
         <h1>LUDÓPATAS FC</h1>
-        <div style="font-size: 0.6rem; color: #666;">GESTIÓN TÉCNICA - BLACK KING AUTOMOTRIZ</div>
+        <div style="font-size: 0.6rem; color: #555;">SISTEMA DE GESTIÓN - BLACK KING AUTOMOTRIZ</div>
     </header>
 
-    <!-- REGISTRO DE JUGADORES -->
+    <!-- MESA Y REGISTRO IGUAL A LO ANTERIOR -->
     <div class="card">
-        <h2>Sentar en Mesa</h2>
+        <h2>Nueva Partida</h2>
         <select id="player-select"><option>Cargando socios...</option></select>
-        <input type="number" id="buys" placeholder="Manos compradas ($100 c/u)" value="1">
-        <button class="btn btn-gold" onclick="addPlayer()">Agregar a la Partida</button>
-    </div>
-
-    <!-- MESA EN VIVO -->
-    <div class="card">
-        <h2>Mesa en Vivo</h2>
-        <table id="live-table">
-            <thead><tr><th>JUGADOR</th><th>MANOS</th><th>RESULTADO</th><th>ACCIÓN</th></tr></thead>
-            <tbody></tbody>
+        <input type="number" id="buys" value="1">
+        <button class="btn btn-gold" onclick="addPlayer()">Sentar en Mesa</button>
+        <table id="live-table" style="width:100%; margin-top:15px; font-size:0.8rem;">
+            <tbody id="lista-mesa"></tbody>
         </table>
-        <button id="save-btn" class="btn btn-green" style="display:none;" onclick="liquidarYGuardar()">Finalizar y Guardar Jornada</button>
+        <button id="save-btn" class="btn btn-green" style="display:none; margin-top:10px;" onclick="guardar()">Cerrar y Guardar</button>
     </div>
 
-    <!-- CONTROL DE COBROS MENSUALES -->
+    <!-- APARTADO DE COBROS (RESUMEN) -->
+    <div class="card" style="border-color: var(--green);">
+        <h2>Control de Cobros (Saldos del Ciclo)</h2>
+        <select id="month-filter" onchange="renderTodo()"></select>
+        <div id="resumen-cobros"></div>
+    </div>
+
+    <!-- HISTORIAL DETALLADO (COMO ANTES) -->
     <div class="card">
-        <h2>Resumen de Cobros (Corte al 21)</h2>
-        <select id="month-filter" onchange="renderCobros()"></select>
-        <div id="cobros-list"></div>
+        <h2>Historial Detallado de Partidas</h2>
+        <div id="historial-detallado"></div>
     </div>
 </div>
 
 <script>
-    // URL implementada correctamente
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbysQ9fdRUXIj4bDGxvr2iVJP2ZZKl3bOT2R_A8tzq9dW28XKc6_JiervEYpsVsgrEmA/exec"; 
-    
-    let sociosData = [];
-    let historialData = [];
-    let mesaActual = [];
+    const SCRIPT_URL = "TU_URL_DE_APPS_SCRIPT"; 
+    let db = { socios: [], historial: [] };
+    let mesa = [];
 
     async function init() {
-        try {
-            const response = await fetch(SCRIPT_URL);
-            const data = await response.json();
-            sociosData = data.socios;
-            historialData = data.historial;
-
-            // Cargar select de socios desde la pestaña "SOCIOS"
-            const select = document.getElementById('player-select');
-            select.innerHTML = sociosData.map(s => `<option value="${s}">${s}</option>`).join('');
-
-            // Cargar periodos disponibles según la columna ID_Mes
-            const periodos = [...new Set(historialData.map(h => h.ID_Mes))].reverse();
-            const monthFilter = document.getElementById('month-filter');
-            monthFilter.innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
-
-            renderCobros();
-        } catch (error) {
-            console.error("Error al cargar datos:", error);
-        }
-    }
-
-    function addPlayer() {
-        const nombre = document.getElementById('player-select').value;
-        const manos = parseInt(document.getElementById('buys').value);
-        if(mesaActual.find(j => j.nombre === nombre)) return alert("El jugador ya está en la mesa.");
-
-        mesaActual.push({ nombre, manos, balanceNeto: 0 });
-        renderMesa();
-    }
-
-    function renderMesa() {
-        const tbody = document.querySelector('#live-table tbody');
-        tbody.innerHTML = mesaActual.map((j, i) => `
-            <tr>
-                <td>${j.nombre}</td>
-                <td>${j.manos}</td>
-                <td><input type="number" onchange="updateBalance(${i}, this.value)" style="width:70px; margin:0; padding:5px; background:#333; color:#fff; border:1px solid #555;"></td>
-                <td><button onclick="mesaActual.splice(${i},1); renderMesa();" style="background:none; border:none; color:#ff4d4d; cursor:pointer;">✖</button></td>
-            </tr>
-        `).join('');
-        document.getElementById('save-btn').style.display = mesaActual.length > 0 ? 'block' : 'none';
-    }
-
-    function updateBalance(index, val) { 
-        mesaActual[index].balanceNeto = parseFloat(val) || 0; 
-    }
-
-    function renderCobros() {
-        const periodo = document.getElementById('month-filter').value;
-        const listDiv = document.getElementById('cobros-list');
-        let saldos = {};
+        const res = await fetch(SCRIPT_URL);
+        db = await res.json();
+        document.getElementById('player-select').innerHTML = db.socios.map(s => `<option value="${s}">${s}</option>`).join('');
         
-        sociosData.forEach(s => saldos[s] = 0);
+        const periodos = [...new Set(db.historial.map(h => h.ID_Mes))].reverse();
+        document.getElementById('month-filter').innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
+        
+        renderTodo();
+    }
 
-        historialData.filter(h => h.ID_Mes === periodo).forEach(reg => {
-            if(saldos[reg.Jugador] !== undefined) {
-                saldos[reg.Jugador] += parseFloat(reg.Resultado);
-            }
+    function renderTodo() {
+        const periodo = document.getElementById('month-filter').value;
+        renderSaldos(periodo);
+        renderHistorial(periodo);
+    }
+
+    // 1. Lógica de Cobros (Suma total por jugador en el mes)
+    function renderSaldos(periodo) {
+        const cont = document.getElementById('resumen-cobros');
+        let saldos = {};
+        db.socios.forEach(s => saldos[s] = 0);
+
+        db.historial.filter(h => h.ID_Mes === periodo).forEach(reg => {
+            if(saldos[reg.Jugador] !== undefined) saldos[reg.Jugador] += parseFloat(reg.Resultado);
         });
 
-        listDiv.innerHTML = Object.entries(saldos).map(([name, total]) => `
+        cont.innerHTML = Object.entries(saldos).map(([name, total]) => `
             <div class="cobro-row">
                 <span>${name}</span>
                 <span class="${total < 0 ? 'debe' : (total > 0 ? 'favor' : '')}">
-                    ${total === 0 ? 'AL DÍA' : (total < 0 ? 'DEBE $' + Math.abs(total) : 'A FAVOR $' + total)}
+                    ${total === 0 ? '$0' : (total < 0 ? '-$' + Math.abs(total) : '+$' + total)}
                 </span>
             </div>
         `).join('');
     }
 
-    async function liquidarYGuardar() {
-        if(!confirm("¿Deseas cerrar la jornada y sincronizar con Google Sheets?")) return;
+    // 2. Lógica de Historial (Ver cada partida individualmente)
+    function renderHistorial(periodo) {
+        const cont = document.getElementById('historial-detallado');
+        const filtrado = db.historial.filter(h => h.ID_Mes === periodo);
         
+        // Agrupar por Fecha y Hora para recrear las sesiones
+        let sesiones = {};
+        filtrado.forEach(reg => {
+            const key = reg.Fecha + reg.Hora;
+            if(!sesiones[key]) sesiones[key] = { fecha: reg.Fecha, hora: reg.Hora, jugadores: [] };
+            sesiones[key].jugadores.push(reg);
+        });
+
+        cont.innerHTML = Object.values(sesiones).reverse().map(s => `
+            <div class="session-block">
+                <div class="session-header"><span>📅 ${s.fecha}</span> <span>⏰ ${s.hora}</span></div>
+                <div class="session-body">
+                    ${s.jugadores.map(j => `
+                        <div class="row-player">
+                            <span>${j.Jugador}</span>
+                            <span style="color:${j.Resultado >= 0 ? 'var(--green)' : 'var(--red)'}">${j.Resultado >= 0 ? '+' : ''}$${j.Resultado}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Funciones de Mesa (Simplificadas)
+    function addPlayer() {
+        const n = document.getElementById('player-select').value;
+        const b = parseInt(document.getElementById('buys').value);
+        if(mesa.find(x => x.nombre === n)) return;
+        mesa.push({ nombre: n, manos: b, balanceNeto: 0 });
+        renderMesa();
+    }
+
+    function renderMesa() {
+        const tbody = document.getElementById('lista-mesa');
+        tbody.innerHTML = mesa.map((j, i) => `
+            <tr>
+                <td>${j.nombre}</td>
+                <td>${j.manos}</td>
+                <td><input type="number" onchange="mesa[${i}].balanceNeto=parseFloat(this.value)||0" style="width:60px;"></td>
+                <td><button onclick="mesa.splice(${i},1);renderMesa();">❌</button></td>
+            </tr>
+        `).join('');
+        document.getElementById('save-btn').style.display = mesa.length > 0 ? 'block' : 'none';
+    }
+
+    async function guardar() {
+        if(!confirm("¿Guardar partida?")) return;
         const payload = {
             fecha: new Date().toLocaleDateString('es-CL'),
-            hour: new Date().toLocaleTimeString('es-CL', {hour: '2-digit', minute:'2-digit'}),
-            jornada: "PARTIDA " + new Date().toLocaleDateString(),
-            jugadores: mesaActual
+            hour: new Date().toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'}),
+            jugadores: mesa
         };
-
-        try {
-            await fetch(SCRIPT_URL, { 
-                method: 'POST', 
-                mode: 'no-cors', 
-                body: JSON.stringify(payload) 
-            });
-            alert("Jornada guardada con éxito.");
-            location.reload();
-        } catch (error) {
-            alert("Error al guardar: " + error);
-        }
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        alert("Guardado. Recargando...");
+        location.reload();
     }
 
     window.onload = init;
