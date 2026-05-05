@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ludópatas FC - Black King</title>
+    <title>Ludópatas FC - Gestión Black King</title>
     <style>
         :root { --gold: #d4af37; --bg: #0a0a0a; --panel: #161616; --border: #333; --text: #eee; --red: #ff4d4d; --green: #2ecc71; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 10px; margin: 0; }
         .container { max-width: 900px; margin: auto; }
         header { text-align: center; border-bottom: 2px solid var(--gold); margin-bottom: 15px; padding: 10px; }
         h1 { color: var(--gold); letter-spacing: 2px; margin: 0; font-size: 1.4rem; }
-        .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 15px; }
+        .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 15px; overflow: hidden; }
         
-        /* Sistema de Colapso Real */
         .card-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-left: 3px solid var(--gold); padding-left: 10px; }
         .card-header h2 { color: var(--gold); font-size: 0.75rem; text-transform: uppercase; margin: 0; }
-        .toggle-icon { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
         
-        .collapsible-content { display: block; overflow: hidden; max-height: 2000px; transition: max-height 0.3s ease-out; margin-top: 15px; }
-        .collapsed { max-height: 0; margin-top: 0; pointer-events: none; opacity: 0; }
+        /* Corrección de colapso total */
+        .collapsible-content { display: block; max-height: 2000px; transition: all 0.3s ease-in-out; opacity: 1; margin-top: 15px; }
+        .collapsed { max-height: 0; margin-top: 0; opacity: 0; pointer-events: none; visibility: hidden; }
 
         table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 480px; }
         th { text-align: left; color: #888; padding: 10px; border-bottom: 1px solid var(--border); }
@@ -34,7 +33,6 @@
         
         .status-win { color: var(--green); font-weight: bold; }
         .status-loss { color: var(--red); font-weight: bold; }
-        .status-zero { color: #888; }
     </style>
 </head>
 <body>
@@ -45,11 +43,11 @@
         <div style="font-size:0.6rem; color:#666;">INGENIERÍA DE MESA - BLACK KING AUTOMOTRIZ</div>
     </header>
 
-    <!-- MESA EN VIVO -->
+    <!-- INGENIERÍA DE MESA -->
     <div class="card">
         <div class="card-header" onclick="toggleSection('mesa-content', 'mesa-icon')">
             <h2>Mesa en Vivo</h2>
-            <span id="mesa-icon" class="toggle-icon">−</span>
+            <span id="mesa-icon" style="color:var(--gold)">−</span>
         </div>
         <div id="mesa-content" class="collapsible-content">
             <select id="sel-socio"></select>
@@ -57,7 +55,7 @@
             <div style="overflow-x:auto;">
                 <table>
                     <thead>
-                        <tr><th>Jugador</th><th>Manos</th><th>Inv.</th><th>Cierre</th><th>Estado</th><th></th></tr>
+                        <tr><th>Jugador</th><th>Manos</th><th>Inversion</th><th>Cierre</th><th>Resultado</th><th></th></tr>
                     </thead>
                     <tbody id="tabla-mesa"></tbody>
                 </table>
@@ -69,11 +67,11 @@
         </div>
     </div>
 
-    <!-- COBROS MENSUALES -->
+    <!-- COBRO MENSUAL -->
     <div class="card" style="border-color: var(--green);">
         <div class="card-header" onclick="toggleSection('cobros-content', 'cobros-icon')">
             <h2>Cobro Mensual (Corte 21)</h2>
-            <span id="cobros-icon" class="toggle-icon">+</span>
+            <span id="cobros-icon" style="color:var(--gold)">+</span>
         </div>
         <div id="cobros-content" class="collapsible-content collapsed">
             <select id="filtro-mes" onchange="actualizarVistas()"></select>
@@ -85,7 +83,7 @@
     <div class="card">
         <div class="card-header" onclick="toggleSection('historial-content', 'historial-icon')">
             <h2>Historial de Partidas</h2>
-            <span id="historial-icon" class="toggle-icon">+</span>
+            <span id="historial-icon" style="color:var(--gold)">+</span>
         </div>
         <div id="historial-content" class="collapsible-content collapsed">
             <div id="historial-partidas"></div>
@@ -94,7 +92,7 @@
 </div>
 
 <script>
-    const URL = "https://script.google.com/macros/s/AKfycbzDQqqwqk3Yf0wWSxhg55jShlldt45TjRNNDZMOkNBRlpSgqzPGoQrDnCXCdlS83DF6/exec";
+    const URL = "TU_URL_DE_APPS_SCRIPT";
     let db = { socios: [], historial: [] };
     let mesa = [];
 
@@ -106,20 +104,15 @@
     }
 
     async function init() {
-        const res = await fetch(URL);
-        db = await res.json();
-        document.getElementById('sel-socio').innerHTML = db.socios.map(s => `<option value="${s}">${s}</option>`).join('');
-        
-        // CORRECCIÓN VISUAL DE PERIODOS: Asegurar que el filtro muestre los periodos reales del Excel
-        const periodos = [...new Set(db.historial.map(h => h.ID_Mes))].sort((a, b) => {
-            const meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
-            const [mesA, anioA] = a.split(" ");
-            const [mesB, anioB] = b.split(" ");
-            return (anioB - anioA) || (meses.indexOf(mesB) - meses.indexOf(mesA));
-        });
-        
-        document.getElementById('filtro-mes').innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
-        actualizarVistas();
+        try {
+            const res = await fetch(URL);
+            db = await res.json();
+            document.getElementById('sel-socio').innerHTML = db.socios.map(s => `<option value="${s}">${s}</option>`).join('');
+            
+            const periodos = [...new Set(db.historial.map(h => h.ID_Mes))].reverse();
+            document.getElementById('filtro-mes').innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
+            actualizarVistas();
+        } catch(e) { console.error("Error en base de datos"); }
     }
 
     function sentarJugador() {
@@ -193,7 +186,7 @@
 
         let sesiones = {};
         filtrado.forEach(r => {
-            const id = r.Fecha + r.Hora;
+            const id = r.Fecha + r.Hora; 
             if(!sesiones[id]) sesiones[id] = { f: r.Fecha, h: r.Hora, p: [] };
             sesiones[id].p.push(r);
         });
