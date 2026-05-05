@@ -3,31 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ludópatas FC - Black King</title>
+    <title>Ludópatas FC - Panel de Control</title>
     <style>
         :root { --gold: #d4af37; --bg: #0a0a0a; --panel: #161616; --border: #333; --text: #eee; --red: #ff4d4d; --green: #2ecc71; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
-        .container { max-width: 600px; margin: auto; }
-        header { text-align: center; border-bottom: 2px solid var(--gold); margin-bottom: 20px; }
-        h1 { color: var(--gold); letter-spacing: 2px; margin: 5px 0; }
-        .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
-        h2 { color: var(--gold); font-size: 0.8rem; text-transform: uppercase; border-left: 3px solid var(--gold); padding-left: 10px; margin-bottom: 15px; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 10px; margin: 0; }
+        .container { max-width: 900px; margin: auto; }
+        header { text-align: center; border-bottom: 2px solid var(--gold); margin-bottom: 15px; }
+        h1 { color: var(--gold); letter-spacing: 2px; margin: 5px 0; font-size: 1.5rem; }
+        .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 15px; overflow-x: auto; }
+        h2 { color: var(--gold); font-size: 0.75rem; text-transform: uppercase; border-left: 3px solid var(--gold); padding-left: 10px; margin-bottom: 10px; }
         
-        select, input { width: 100%; padding: 12px; background: #222; border: 1px solid var(--border); border-radius: 8px; color: #fff; margin-bottom: 10px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; }
-        .btn-gold { background: var(--gold); color: #000; }
-        .btn-green { background: var(--green); color: #fff; }
-        .btn-red { background: var(--red); color: #fff; padding: 5px 10px; width: auto; }
-
-        /* Mesa de Juego */
-        .player-card { background: #222; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #333; }
-        .controls { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
-        .counter { font-size: 1.2rem; font-weight: bold; min-width: 30px; text-align: center; color: var(--gold); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th { text-align: left; color: #888; padding: 8px; border-bottom: 1px solid var(--border); }
+        td { padding: 8px; border-bottom: 1px solid #222; }
         
-        /* Historial y Cobros */
-        .session-card { background: #111; border-radius: 8px; margin-bottom: 12px; border: 1px solid #222; overflow: hidden; }
-        .session-header { background: #1a1a1a; padding: 8px 12px; font-size: 0.7rem; display: flex; justify-content: space-between; color: var(--gold); }
-        .row { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #1a1a1a; font-size: 0.85rem; }
+        .btn { padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; }
+        .btn-gold { background: var(--gold); color: #000; width: 100%; margin-bottom: 10px; }
+        .btn-green { background: var(--green); color: #fff; width: 100%; }
+        .btn-op { padding: 4px 8px; background: #333; color: white; border-radius: 4px; }
+        
+        input { background: #222; border: 1px solid #444; color: white; padding: 5px; border-radius: 4px; width: 60px; }
+        select { width: 100%; padding: 10px; background: #222; color: white; border-radius: 8px; margin-bottom: 10px; }
+        
+        .status-win { color: var(--green); font-weight: bold; }
+        .status-loss { color: var(--red); font-weight: bold; }
+        .status-zero { color: #888; }
     </style>
 </head>
 <body>
@@ -35,35 +35,46 @@
 <div class="container">
     <header>
         <h1>LUDÓPATAS FC</h1>
-        <div style="font-size:0.6rem; color:#666;">GESTIÓN TÉCNICA - BLACK KING AUTOMOTRIZ</div>
+        <div style="font-size:0.6rem; color:#666;">CONTROL DE MESA - BLACK KING AUTOMOTRIZ</div>
     </header>
 
-    <!-- REGISTRO DE JUEGO -->
+    <!-- MESA EN VIVO -->
     <div class="card">
         <h2>Mesa en Vivo</h2>
         <select id="sel-socio"></select>
-        <button class="btn btn-gold" onclick="sentar()">Sentar Jugador</button>
+        <button class="btn btn-gold" onclick="sentarJugador()">Sentar en Mesa</button>
         
-        <div id="mesa-viva" style="margin-top:20px;"></div>
-        
-        <div id="area-acciones" style="display:none; margin-top:15px; border-top:1px solid #444; padding-top:15px;">
-            <button class="btn btn-gold" style="margin-bottom:10px;" onclick="cuadrar()">1. Cuadrar y Calcular</button>
-            <div id="status-cuadre" style="text-align:center; font-weight:bold; margin-bottom:10px;"></div>
-            <button id="btn-final" class="btn btn-green" style="display:none;" onclick="enviar()">2. Sincronizar con Excel</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Jugador</th>
+                    <th>Manos</th>
+                    <th>Inversión</th>
+                    <th>Cierre</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tabla-mesa"></tbody>
+        </table>
+
+        <div id="controles-finales" style="display:none; margin-top:15px; border-top:1px solid #444; padding-top:10px;">
+            <div id="txt-cuadre" style="text-align:center; font-weight:bold; margin-bottom:10px; font-size:0.8rem;"></div>
+            <button class="btn btn-green" onclick="enviarReporte()">Sincronizar y Cerrar</button>
         </div>
     </div>
 
-    <!-- COBROS MENSUALES -->
+    <!-- COBROS -->
     <div class="card" style="border-color: var(--green);">
-        <h2>Cobros del Mes (Corte 21)</h2>
-        <select id="filtro-mes" onchange="renderVistas()"></select>
+        <h2>Cobros Mensuales (Corte 21)</h2>
+        <select id="filtro-mes" onchange="actualizarVistas()"></select>
         <div id="lista-cobros"></div>
     </div>
 
-    <!-- HISTORIAL DE PARTIDAS -->
+    <!-- HISTORIAL -->
     <div class="card">
         <h2>Historial de Partidas</h2>
-        <div id="historial-detallado"></div>
+        <div id="historial-partidas"></div>
     </div>
 </div>
 
@@ -72,113 +83,126 @@
     let db = { socios: [], historial: [] };
     let mesa = [];
 
-    async function cargar() {
+    async function init() {
         const res = await fetch(URL);
         db = await res.json();
         document.getElementById('sel-socio').innerHTML = db.socios.map(s => `<option value="${s}">${s}</option>`).join('');
         const periodos = [...new Set(db.historial.map(h => h.ID_Mes))].reverse();
         document.getElementById('filtro-mes').innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
-        renderVistas();
+        actualizarVistas();
     }
 
-    function sentar() {
-        const n = document.getElementById('sel-socio').value;
-        if(mesa.find(x => x.nombre === n)) return;
-        mesa.push({ nombre: n, manos: 1, fichaFinal: 0, balanceNeto: 0 });
-        dibujarMesa();
+    function sentarJugador() {
+        const nombre = document.getElementById('sel-socio').value;
+        if (mesa.find(j => j.nombre === nombre)) return;
+        mesa.push({ nombre, manos: 1, inversion: 100, cierre: 0, balance: -100 });
+        renderMesa();
     }
 
-    function dibujarMesa() {
-        const cont = document.getElementById('mesa-viva');
-        cont.innerHTML = mesa.map((j, i) => `
-            <div class="player-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-weight:bold;">${j.nombre}</span>
-                    <button class="btn-red" onclick="mesa.splice(${i},1);dibujarMesa();">Quitar</button>
-                </div>
-                <div class="controls">
-                    <span style="font-size:0.7rem; color:#888;">Manos ($100):</span>
-                    <button class="btn" style="width:30px; padding:5px;" onclick="ajustarMano(${i},-1)">-</button>
-                    <span class="counter">${j.manos}</span>
-                    <button class="btn" style="width:30px; padding:5px;" onclick="ajustarMano(${i},1)">+</button>
-                    <input type="number" placeholder="Fichas Finales" onchange="mesa[${i}].fichaFinal=parseFloat(this.value)||0" style="margin:0; width:100px; height:35px;">
-                </div>
-            </div>
+    function ajustarManos(idx, delta) {
+        mesa[idx].manos = Math.max(1, mesa[idx].manos + delta);
+        mesa[idx].inversion = mesa[idx].manos * 100;
+        calcularFila(idx);
+    }
+
+    function calcularFila(idx) {
+        const j = mesa[idx];
+        j.balance = j.cierre - j.inversion;
+        renderMesa();
+    }
+
+    function renderMesa() {
+        const tbody = document.getElementById('tabla-mesa');
+        tbody.innerHTML = mesa.map((j, i) => `
+            <tr>
+                <td style="font-weight:bold;">${j.nombre}</td>
+                <td>
+                    <button class="btn-op" onclick="ajustarManos(${i},-1)">-</button>
+                    <span style="margin:0 5px;">${j.manos}</span>
+                    <button class="btn-op" onclick="ajustarManos(${i},1)">+</button>
+                </td>
+                <td>$${j.inversion}</td>
+                <td>
+                    <input type="number" value="${j.cierre}" onchange="mesa[${i}].cierre=parseFloat(this.value)||0; calcularFila(${i})">
+                </td>
+                <td class="${j.balance > 0 ? 'status-win' : (j.balance < 0 ? 'status-loss' : 'status-zero')}">
+                    ${j.balance > 0 ? '+' : ''}$${j.balance}
+                </td>
+                <td><button class="btn-op" onclick="mesa.splice(${i},1);renderMesa()">❌</button></td>
+            </tr>
         `).join('');
-        document.getElementById('area-acciones').style.display = mesa.length > 0 ? 'block' : 'none';
-        document.getElementById('btn-final').style.display = 'none';
-        document.getElementById('status-cuadre').innerHTML = "";
+
+        const totalInv = mesa.reduce((sum, j) => sum + j.inversion, 0);
+        const totalCie = mesa.reduce((sum, j) => sum + j.cierre, 0);
+        const diff = totalCie - totalInv;
+        
+        const txtCuadre = document.getElementById('txt-cuadre');
+        txtCuadre.innerHTML = `Inversión: $${totalInv} | Cierre: $${totalCie} <br> 
+                               <span style="color:${diff === 0 ? 'var(--green)' : 'var(--red)'}">
+                               ${diff === 0 ? 'MESA CUADRADA ✅' : 'DIFERENCIA: $' + diff}</span>`;
+        
+        document.getElementById('controles-finales').style.display = mesa.length > 0 ? 'block' : 'none';
     }
 
-    function ajustarMano(i, val) {
-        mesa[i].manos = Math.max(1, mesa[i].manos + val);
-        dibujarMesa();
-    }
-
-    function cuadrar() {
-        let inversionTotal = 0;
-        let fichasTotales = 0;
-
-        mesa.forEach(j => {
-            const costo = j.manos * 100;
-            j.balanceNeto = j.fichaFinal - costo;
-            inversionTotal += costo;
-            fichasTotales += j.fichaFinal;
-        });
-
-        const status = document.getElementById('status-cuadre');
-        if (inversionTotal === fichasTotales) {
-            status.style.color = "var(--green)";
-            status.innerHTML = `✅ CUADRADO: $${fichasTotales} en fichas`;
-            document.getElementById('btn-final').style.display = 'block';
-        } else {
-            status.style.color = "var(--red)";
-            status.innerHTML = `⚠️ ERROR: Faltan/Sobran $${fichasTotales - inversionTotal}`;
-            document.getElementById('btn-final').style.display = 'none';
+    async function enviarReporte() {
+        const totalInv = mesa.reduce((sum, j) => sum + j.inversion, 0);
+        const totalCie = mesa.reduce((sum, j) => sum + j.cierre, 0);
+        if (totalInv !== totalCie) {
+            if (!confirm("La mesa no cuadra. ¿Deseas guardar de todas formas?")) return;
         }
-    }
 
-    async function enviar() {
-        if(!confirm("¿Sincronizar reporte técnico con la nube?")) return;
         const payload = {
             fecha: new Date().toLocaleDateString('es-CL'),
             hora: new Date().toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'}),
             jornada: "PARTIDA " + new Date().toLocaleDateString(),
-            jugadores: mesa
+            jugadores: mesa.map(j => ({ nombre: j.nombre, inversion: j.inversion, balanceNeto: j.balance }))
         };
+
         await fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        alert("Reporte guardado con éxito.");
+        alert("Datos sincronizados con éxito.");
         location.reload();
     }
 
-    function renderVistas() {
+    function actualizarVistas() {
         const periodo = document.getElementById('filtro-mes').value;
         const filtrado = db.historial.filter(h => h.ID_Mes === periodo);
         
+        // Cobros
         let saldos = {};
         db.socios.forEach(s => saldos[s] = 0);
         filtrado.forEach(r => { if(saldos[r.Jugador] !== undefined) saldos[r.Jugador] += parseFloat(r.Resultado); });
-
-        document.getElementById('lista-cobros').innerHTML = Object.entries(saldos).map(([nom, tot]) => `
-            <div class="row"><span>${nom}</span><span style="color:${tot < 0 ? 'var(--red)' : (tot > 0 ? 'var(--green)' : '#888')}">${tot < 0 ? '-$' + Math.abs(tot) : (tot > 0 ? '+$' + tot : '$0')}</span></div>
+        
+        document.getElementById('lista-cobros').innerHTML = Object.entries(saldos).map(([n, t]) => `
+            <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #222; font-size:0.85rem;">
+                <span>${n}</span>
+                <span class="${t > 0 ? 'status-win' : (t < 0 ? 'status-loss' : 'status-zero')}">${t > 0 ? '+' : ''}$${t}</span>
+            </div>
         `).join('');
 
+        // Historial
         let sesiones = {};
         filtrado.forEach(r => {
             const id = r.Fecha + r.Hora;
-            if(!sesiones[id]) sesiones[id] = { fecha: r.Fecha, hora: r.Hora, jugadores: [] };
-            sesiones[id].jugadores.push(r);
+            if(!sesiones[id]) sesiones[id] = { f: r.Fecha, h: r.Hora, p: [] };
+            sesiones[id].p.push(r);
         });
 
-        document.getElementById('historial-detallado').innerHTML = Object.values(sesiones).reverse().map(s => `
-            <div class="session-card">
-                <div class="session-header"><span>📅 ${s.fecha}</span> <span>⏰ ${s.hora}</span></div>
-                ${s.jugadores.map(j => `<div class="row"><span>${j.Jugador}</span><span style="color:${j.Resultado < 0 ? 'var(--red)' : 'var(--green)'}">${j.Resultado < 0 ? '-$' + Math.abs(j.Resultado) : '+$' + j.Resultado}</span></div>`).join('')}
+        document.getElementById('historial-partidas').innerHTML = Object.values(sesiones).reverse().map(s => `
+            <div style="background:#111; border:1px solid #222; border-radius:8px; margin-bottom:10px; overflow:hidden;">
+                <div style="background:#1a1a1a; padding:5px 10px; font-size:0.7rem; color:var(--gold); display:flex; justify-content:space-between;">
+                    <span>📅 ${s.f}</span> <span>⏰ ${s.h}</span>
+                </div>
+                ${s.p.map(j => `
+                    <div style="display:flex; justify-content:space-between; padding:5px 10px; font-size:0.8rem;">
+                        <span>${j.Jugador}</span>
+                        <span class="${j.Resultado > 0 ? 'status-win' : (j.Resultado < 0 ? 'status-loss' : 'status-zero')}">${j.Resultado > 0 ? '+' : ''}$${j.Resultado}</span>
+                    </div>
+                `).join('')}
             </div>
         `).join('');
     }
 
-    window.onload = cargar;
+    window.onload = init;
 </script>
 </body>
 </html>
