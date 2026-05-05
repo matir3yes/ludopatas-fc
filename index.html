@@ -13,20 +13,21 @@
         .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
         h2 { color: var(--gold); font-size: 0.8rem; text-transform: uppercase; border-left: 3px solid var(--gold); padding-left: 10px; margin-bottom: 15px; }
         
-        /* Formulario */
         select, input { width: 100%; padding: 12px; background: #222; border: 1px solid var(--border); border-radius: 8px; color: #fff; margin-bottom: 10px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; }
         .btn-gold { background: var(--gold); color: #000; }
         .btn-green { background: var(--green); color: #fff; }
+        .btn-red { background: var(--red); color: #fff; padding: 5px 10px; width: auto; }
 
-        /* Estilo Historial "Como antes" */
+        /* Mesa de Juego */
+        .player-card { background: #222; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #333; }
+        .controls { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
+        .counter { font-size: 1.2rem; font-weight: bold; min-width: 30px; text-align: center; color: var(--gold); }
+        
+        /* Historial y Cobros */
         .session-card { background: #111; border-radius: 8px; margin-bottom: 12px; border: 1px solid #222; overflow: hidden; }
-        .session-header { background: #1a1a1a; padding: 8px 12px; font-size: 0.7rem; display: flex; justify-content: space-between; color: var(--gold); border-bottom: 1px solid #222; }
-        .player-row { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #1a1a1a; font-size: 0.85rem; }
-        .monto { font-weight: bold; }
-
-        /* Resumen de Cobros */
-        .cobro-item { display: flex; justify-content: space-between; padding: 10px; background: #1a1a1a; margin-bottom: 5px; border-radius: 6px; font-size: 0.9rem; }
+        .session-header { background: #1a1a1a; padding: 8px 12px; font-size: 0.7rem; display: flex; justify-content: space-between; color: var(--gold); }
+        .row { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #1a1a1a; font-size: 0.85rem; }
     </style>
 </head>
 <body>
@@ -34,27 +35,32 @@
 <div class="container">
     <header>
         <h1>LUDÓPATAS FC</h1>
-        <div style="font-size:0.6rem; color:#666;">SISTEMA PROFESIONAL - BLACK KING AUTOMOTRIZ</div>
+        <div style="font-size:0.6rem; color:#666;">GESTIÓN TÉCNICA - BLACK KING AUTOMOTRIZ</div>
     </header>
 
-    <!-- 1. MESA DE JUEGO -->
+    <!-- REGISTRO DE JUEGO -->
     <div class="card">
-        <h2>Nueva Jornada</h2>
+        <h2>Mesa en Vivo</h2>
         <select id="sel-socio"></select>
-        <input type="number" id="in-manos" placeholder="Manos ($100 c/u)" value="1">
-        <button class="btn btn-gold" onclick="agregarAMesa()">Sentar Jugador</button>
-        <div id="mesa-viva" style="margin-top:15px;"></div>
-        <button id="btn-guardar" class="btn btn-green" style="display:none; margin-top:10px;" onclick="enviarDatos()">Guardar Partida</button>
+        <button class="btn btn-gold" onclick="sentar()">Sentar Jugador</button>
+        
+        <div id="mesa-viva" style="margin-top:20px;"></div>
+        
+        <div id="area-acciones" style="display:none; margin-top:15px; border-top:1px solid #444; padding-top:15px;">
+            <button class="btn btn-gold" style="margin-bottom:10px;" onclick="cuadrar()">1. Cuadrar y Calcular</button>
+            <div id="status-cuadre" style="text-align:center; font-weight:bold; margin-bottom:10px;"></div>
+            <button id="btn-final" class="btn btn-green" style="display:none;" onclick="enviar()">2. Sincronizar con Excel</button>
+        </div>
     </div>
 
-    <!-- 2. RESUMEN DE COBROS (CALCULAR) -->
+    <!-- COBROS MENSUALES -->
     <div class="card" style="border-color: var(--green);">
-        <h2>Control de Cobros (Corte al 21)</h2>
-        <select id="filtro-mes" onchange="actualizarVistas()"></select>
+        <h2>Cobros del Mes (Corte 21)</h2>
+        <select id="filtro-mes" onchange="renderVistas()"></select>
         <div id="lista-cobros"></div>
     </div>
 
-    <!-- 3. HISTORIAL DETALLADO (LAS PARTIDAS) -->
+    <!-- HISTORIAL DE PARTIDAS -->
     <div class="card">
         <h2>Historial de Partidas</h2>
         <div id="historial-detallado"></div>
@@ -62,41 +68,101 @@
 </div>
 
 <script>
-    const URL = "https://script.google.com/macros/s/AKfycbysQ9fdRUXIj4bDGxvr2iVJP2ZZKl3bOT2R_A8tzq9dW28XKc6_JiervEYpsVsgrEmA/exec";
+    const URL = "https://script.google.com/macros/s/AKfycbzEDAW59LMsubsUHWaO7NCBp4Fp5tuogSmhHljTEBJjF9QElvPgXb6X9GrIbdraOnNI/exec";
     let db = { socios: [], historial: [] };
     let mesa = [];
 
     async function cargar() {
         const res = await fetch(URL);
         db = await res.json();
-        
         document.getElementById('sel-socio').innerHTML = db.socios.map(s => `<option value="${s}">${s}</option>`).join('');
-        
         const periodos = [...new Set(db.historial.map(h => h.ID_Mes))].reverse();
         document.getElementById('filtro-mes').innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
-        
-        actualizarVistas();
+        renderVistas();
     }
 
-    function actualizarVistas() {
+    function sentar() {
+        const n = document.getElementById('sel-socio').value;
+        if(mesa.find(x => x.nombre === n)) return;
+        mesa.push({ nombre: n, manos: 1, fichaFinal: 0, balanceNeto: 0 });
+        dibujarMesa();
+    }
+
+    function dibujarMesa() {
+        const cont = document.getElementById('mesa-viva');
+        cont.innerHTML = mesa.map((j, i) => `
+            <div class="player-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:bold;">${j.nombre}</span>
+                    <button class="btn-red" onclick="mesa.splice(${i},1);dibujarMesa();">Quitar</button>
+                </div>
+                <div class="controls">
+                    <span style="font-size:0.7rem; color:#888;">Manos ($100):</span>
+                    <button class="btn" style="width:30px; padding:5px;" onclick="ajustarMano(${i},-1)">-</button>
+                    <span class="counter">${j.manos}</span>
+                    <button class="btn" style="width:30px; padding:5px;" onclick="ajustarMano(${i},1)">+</button>
+                    <input type="number" placeholder="Fichas Finales" onchange="mesa[${i}].fichaFinal=parseFloat(this.value)||0" style="margin:0; width:100px; height:35px;">
+                </div>
+            </div>
+        `).join('');
+        document.getElementById('area-acciones').style.display = mesa.length > 0 ? 'block' : 'none';
+        document.getElementById('btn-final').style.display = 'none';
+        document.getElementById('status-cuadre').innerHTML = "";
+    }
+
+    function ajustarMano(i, val) {
+        mesa[i].manos = Math.max(1, mesa[i].manos + val);
+        dibujarMesa();
+    }
+
+    function cuadrar() {
+        let inversionTotal = 0;
+        let fichasTotales = 0;
+
+        mesa.forEach(j => {
+            const costo = j.manos * 100;
+            j.balanceNeto = j.fichaFinal - costo;
+            inversionTotal += costo;
+            fichasTotales += j.fichaFinal;
+        });
+
+        const status = document.getElementById('status-cuadre');
+        if (inversionTotal === fichasTotales) {
+            status.style.color = "var(--green)";
+            status.innerHTML = `✅ CUADRADO: $${fichasTotales} en fichas`;
+            document.getElementById('btn-final').style.display = 'block';
+        } else {
+            status.style.color = "var(--red)";
+            status.innerHTML = `⚠️ ERROR: Faltan/Sobran $${fichasTotales - inversionTotal}`;
+            document.getElementById('btn-final').style.display = 'none';
+        }
+    }
+
+    async function enviar() {
+        if(!confirm("¿Sincronizar reporte técnico con la nube?")) return;
+        const payload = {
+            fecha: new Date().toLocaleDateString('es-CL'),
+            hora: new Date().toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'}),
+            jornada: "PARTIDA " + new Date().toLocaleDateString(),
+            jugadores: mesa
+        };
+        await fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        alert("Reporte guardado con éxito.");
+        location.reload();
+    }
+
+    function renderVistas() {
         const periodo = document.getElementById('filtro-mes').value;
         const filtrado = db.historial.filter(h => h.ID_Mes === periodo);
         
-        // Render Cobros
         let saldos = {};
         db.socios.forEach(s => saldos[s] = 0);
         filtrado.forEach(r => { if(saldos[r.Jugador] !== undefined) saldos[r.Jugador] += parseFloat(r.Resultado); });
-        
+
         document.getElementById('lista-cobros').innerHTML = Object.entries(saldos).map(([nom, tot]) => `
-            <div class="cobro-item">
-                <span>${nom}</span>
-                <span class="${tot < 0 ? 'monto' : 'monto'}" style="color:${tot < 0 ? 'var(--red)' : (tot > 0 ? 'var(--green)' : '#888')}">
-                    ${tot < 0 ? '-$' + Math.abs(tot) : (tot > 0 ? '+$' + tot : '$0')}
-                </span>
-            </div>
+            <div class="row"><span>${nom}</span><span style="color:${tot < 0 ? 'var(--red)' : (tot > 0 ? 'var(--green)' : '#888')}">${tot < 0 ? '-$' + Math.abs(tot) : (tot > 0 ? '+$' + tot : '$0')}</span></div>
         `).join('');
 
-        // Render Historial (Agrupado por Sesión)
         let sesiones = {};
         filtrado.forEach(r => {
             const id = r.Fecha + r.Hora;
@@ -107,45 +173,9 @@
         document.getElementById('historial-detallado').innerHTML = Object.values(sesiones).reverse().map(s => `
             <div class="session-card">
                 <div class="session-header"><span>📅 ${s.fecha}</span> <span>⏰ ${s.hora}</span></div>
-                ${s.jugadores.map(j => `
-                    <div class="player-row">
-                        <span>${j.Jugador}</span>
-                        <span style="color:${j.Resultado < 0 ? 'var(--red)' : 'var(--green)'}">${j.Resultado < 0 ? '-$' + Math.abs(j.Resultado) : '+$' + j.Resultado}</span>
-                    </div>
-                `).join('')}
+                ${s.jugadores.map(j => `<div class="row"><span>${j.Jugador}</span><span style="color:${j.Resultado < 0 ? 'var(--red)' : 'var(--green)'}">${j.Resultado < 0 ? '-$' + Math.abs(j.Resultado) : '+$' + j.Resultado}</span></div>`).join('')}
             </div>
         `).join('');
-    }
-
-    function agregarAMesa() {
-        const n = document.getElementById('sel-socio').value;
-        const m = parseInt(document.getElementById('in-manos').value);
-        if(mesa.find(x => x.nombre === n)) return;
-        mesa.push({ nombre: n, manos: m, balanceNeto: 0 });
-        dibujarMesa();
-    }
-
-    function dibujarMesa() {
-        document.getElementById('mesa-viva').innerHTML = mesa.map((j, i) => `
-            <div class="player-row" style="background:#222; margin-bottom:5px; border-radius:5px;">
-                <span>${j.nombre} (${j.manos})</span>
-                <input type="number" onchange="mesa[${i}].balanceNeto=parseFloat(this.value)||0" style="width:80px; margin:0; padding:5px;">
-            </div>
-        `).join('');
-        document.getElementById('btn-guardar').style.display = mesa.length > 0 ? 'block' : 'none';
-    }
-
-    async function enviarDatos() {
-        if(!confirm("¿Guardar sesión?")) return;
-        const payload = {
-            fecha: new Date().toLocaleDateString('es-CL'),
-            hora: new Date().toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'}),
-            jornada: "PARTIDA " + new Date().toLocaleDateString(),
-            jugadores: mesa
-        };
-        await fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        alert("Sincronizado con Black King Automotriz");
-        location.reload();
     }
 
     window.onload = cargar;
