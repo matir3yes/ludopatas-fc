@@ -55,7 +55,7 @@
 
         h2 { font-size: 0.85rem; color: var(--gold); margin: 0 0 15px 0; text-transform: uppercase; border-left: 3px solid var(--gold); padding-left: 10px; }
 
-        input {
+        select, input {
             width: 100%; padding: 12px; background: #222; border: 1px solid var(--border);
             border-radius: 8px; color: #fff; box-sizing: border-box; font-size: 1rem;
         }
@@ -87,38 +87,22 @@
         .cero { background: rgba(136, 136, 136, 0.15); color: var(--neutral); }
         .arremango { background: var(--blue); color: #fff; border: 1px solid #fff; }
 
-        .alerta {
-            background: rgba(255, 77, 77, 0.1); color: var(--red);
-            padding: 15px; border-radius: 8px; border: 1px solid var(--red);
-            margin-top: 15px; text-align: center; font-weight: bold; display: none;
-        }
-
-        .month-group { margin-top: 15px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-        .month-header {
-            background: #222; padding: 15px; display: flex; justify-content: space-between;
-            align-items: center; cursor: pointer; border-bottom: 1px solid #333;
-        }
-        .month-name { color: var(--gold); font-weight: 900; }
-        .month-content { padding: 10px; background: #0c0c0c; display: none; }
-        .month-content.show { display: block !important; }
-
-        .history-card { background: var(--panel); border-radius: 8px; margin-bottom: 12px; border-left: 5px solid var(--gold); overflow: hidden; }
-        .h-head { background: #1a1a1a; padding: 10px; display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--neutral); }
-        .h-body { padding: 10px; }
-        .h-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1f1f1f; }
-        
         .loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000;
         }
 
+        .month-group { margin-top: 15px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+        .month-header { background: #222; padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .month-content { padding: 10px; background: #0c0c0c; display: none; }
+        .show { display: block !important; }
+
         .cobro-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222; }
-        select#filtro-cobros { width: 100%; background: #000; color: var(--gold); border: 1px solid var(--border); padding: 10px; border-radius: 8px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-<div id="loader" class="loading-overlay"><div style="color:var(--gold); font-weight: bold; letter-spacing: 2px;">GUARDANDO EN NUBE...</div></div>
+<div id="loader" class="loading-overlay"><div style="color:var(--gold); font-weight: bold; letter-spacing: 2px;">SINCRONIZANDO...</div></div>
 
 <div class="container">
     <header>
@@ -134,9 +118,11 @@
 
     <div class="main-grid">
         <div class="card">
-            <h2>Nuevo Jugador</h2>
+            <h2>Habilitar Socio</h2>
             <div style="margin-bottom: 12px;">
-                <input type="text" id="name" placeholder="NOMBRE JUGADOR">
+                <select id="select-socios">
+                    <option value="">Cargando socios...</option>
+                </select>
             </div>
             <div style="margin-bottom: 12px;">
                 <input type="number" id="buys" value="1" min="1">
@@ -166,49 +152,63 @@
                 </table>
             </div>
             <button class="btn btn-green" onclick="liquidar()">Finalizar y Cuadrar</button>
-            <div id="msg-alerta" class="alerta"></div>
+            <div id="msg-alerta" style="display:none; color:var(--red); text-align:center; padding:10px; font-weight:bold;"></div>
 
             <div id="resumen-final" style="display:none; margin-top:20px; padding:15px; background:#000; border-radius:8px; border: 1px solid var(--blue);">
-                <div id="resumen-lista" style="font-size: 0.85rem; margin-bottom: 15px; line-height: 1.6;"></div>
+                <div id="resumen-lista" style="font-size: 0.85rem; margin-bottom: 15px;"></div>
                 <button class="btn btn-blue" onclick="guardarPartida()">Confirmar y Guardar</button>
             </div>
         </div>
     </div>
 
     <div class="card" style="margin-top: 30px; border-color: var(--green);">
-        <h2>Resumen Contable (Día 21) 💰</h2>
+        <h2>Cobros del Ciclo (Corte 21) 💰</h2>
         <select id="filtro-cobros" onchange="renderCobros()"></select>
         <div id="contenedor-cobros"></div>
     </div>
 
     <div style="margin-top: 30px;">
-        <h2 style="color:var(--neutral); border-color:var(--neutral);">Historial de Sesiones</h2>
-        <div id="historial-contenedor">
-            <p style="text-align:center; color:var(--neutral); font-size: 0.8rem;">Cargando datos...</p>
-        </div>
+        <h2 style="color:var(--neutral); border-color:var(--neutral);">Historial</h2>
+        <div id="historial-contenedor"></div>
     </div>
 </div>
 
 <script>
-    // URL DE TU SCRIPT YA INTEGRADA
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6LqasSF48aYm9L3alUF6iRi7CL4LQvo5E07WeOAt9Csp8or2tnhyvhNdRXmY6b_k2/exec";
+    // TU NUEVA URL ACTUALIZADA
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlGgyfpFnmhcdznjm36Y4WKosP4VleZvt380X6Rx_CFs4Tf75VLvVmxrObm5bBFxqX/exec";
     
     let mesa = [];
     let dbGlobal = [];
     const VALOR_MANO = 100;
 
-    function setupDateTime() {
+    async function init() {
         const now = new Date();
         document.getElementById('current-date').value = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
         document.getElementById('session-note').value = now.getHours() >= 12 ? 'JORNADA NOCTURNA' : 'JORNADA MAÑANA';
+        await fetchDatos();
+    }
+
+    async function fetchDatos() {
+        try {
+            const res = await fetch(SCRIPT_URL);
+            const data = await res.json();
+            
+            // Llenar Socios
+            const selSocios = document.getElementById('select-socios');
+            selSocios.innerHTML = data.socios.map(s => `<option value="${s}">${s}</option>`).join('');
+            
+            // Guardar Historial
+            dbGlobal = data.historial;
+            renderHistorial(dbGlobal);
+            renderFiltroCobros(dbGlobal);
+        } catch (e) { console.error("Error cargando base"); }
     }
 
     function add() {
-        const n = document.getElementById('name').value.toUpperCase();
+        const n = document.getElementById('select-socios').value;
         const b = parseInt(document.getElementById('buys').value);
-        if(!n) return;
+        if(!n || mesa.find(j => j.nombre === n)) return;
         mesa.push({ id: Date.now(), nombre: n, manos: b, balanceNeto: 0 });
-        document.getElementById('name').value = "";
         actualizarMesa();
     }
 
@@ -252,21 +252,17 @@
     }
 
     function liquidar() {
-        let suma = 0; mesa.forEach(j => suma += j.balanceNeto);
+        let suma = mesa.reduce((acc, j) => acc + j.balanceNeto, 0);
         const alerta = document.getElementById('msg-alerta');
         const resDiv = document.getElementById('resumen-final');
-        if(suma !== 0) {
+        if(Math.abs(suma) > 0.1) {
             alerta.style.display = "block";
-            alerta.innerText = suma > 0 ? `⚠️ SOBRAN $${suma}` : `⚠️ FALTAN $${Math.abs(suma)}`;
+            alerta.innerText = `⚠️ CUADRATURA ERRÓNEA: ${suma > 0 ? 'SOBRAN' : 'FALTAN'} $${Math.abs(suma)}`;
             resDiv.style.display = "none";
         } else {
             alerta.style.display = "none";
             resDiv.style.display = "block";
-            let resHtml = "<b>RESUMEN:</b><br>";
-            mesa.forEach(j => {
-                resHtml += `${j.nombre}: ${j.balanceNeto >= 0 ? '+' : ''}$${j.balanceNeto}<br>`;
-            });
-            document.getElementById('resumen-lista').innerHTML = resHtml;
+            document.getElementById('resumen-lista').innerHTML = mesa.map(j => `<b>${j.nombre}:</b> ${j.balanceNeto >= 0 ? '+' : ''}$${j.balanceNeto}`).join('<br>');
         }
     }
 
@@ -280,30 +276,17 @@
         };
         try {
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert("Partida enviada.");
-            mesa = []; actualizarMesa();
-            setTimeout(fetchHistorial, 2000);
-        } catch (e) { alert("Error al guardar."); }
+            alert("Partida enviada correctamente.");
+            location.reload();
+        } catch (e) { alert("Error de red."); }
         document.getElementById('loader').style.display = "none";
-    }
-
-    async function fetchHistorial() {
-        try {
-            const res = await fetch(SCRIPT_URL);
-            const data = await res.json();
-            dbGlobal = data;
-            renderHistorial(data);
-            renderFiltroCobros(data);
-        } catch (e) { document.getElementById('historial-contenedor').innerHTML = "Error al cargar datos."; }
     }
 
     function renderFiltroCobros(data) {
         const periodos = [...new Set(data.map(h => h.ID_Mes))].reverse();
         const sel = document.getElementById('filtro-cobros');
-        if(periodos.length > 0) {
-            sel.innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
-            renderCobros();
-        }
+        sel.innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
+        renderCobros();
     }
 
     function renderCobros() {
@@ -311,21 +294,17 @@
         const filtrado = dbGlobal.filter(h => h.ID_Mes === mesSel);
         const saldos = {};
         filtrado.forEach(r => { saldos[r.Jugador] = (saldos[r.Jugador] || 0) + parseFloat(r.Resultado); });
-
         const cont = document.getElementById('contenedor-cobros');
         cont.innerHTML = Object.entries(saldos).sort((a,b) => b[1] - a[1]).map(([nom, bal]) => `
             <div class="cobro-row">
                 <span style="font-weight:bold;">${nom}</span>
-                <span style="color:${bal >= 0 ? 'var(--green)' : 'var(--red)'}">
-                    ${bal >= 0 ? '+$' : '-$'}${Math.abs(bal)}
-                </span>
+                <span style="color:${bal >= 0 ? 'var(--green)' : 'var(--red)'}">${bal >= 0 ? '+$' : '-$'}${Math.abs(bal)}</span>
             </div>
         `).join('');
     }
 
     function renderHistorial(data) {
         const cont = document.getElementById('historial-contenedor');
-        if(!data || data.length === 0) { cont.innerHTML = "Sin registros."; return; }
         cont.innerHTML = "";
         const grupos = {};
         data.slice().reverse().forEach(row => {
@@ -334,7 +313,6 @@
             if(!grupos[row.ID_Mes].sesiones[sKey]) grupos[row.ID_Mes].sesiones[sKey] = { f: row.Fecha, h: row.Hora, p: [] };
             grupos[row.ID_Mes].sesiones[sKey].p.push(row);
         });
-
         Object.keys(grupos).forEach(idMes => {
             const idLimpio = idMes.replace(/\s+/g, '_');
             cont.innerHTML += `
@@ -344,11 +322,9 @@
                     </div>
                     <div id="content-${idLimpio}" class="month-content">
                         ${Object.values(grupos[idMes].sesiones).map(s => `
-                            <div class="history-card">
-                                <div class="h-head"><span>SESIÓN</span> <span>${s.f} - ${s.h}</span></div>
-                                <div class="h-body">
-                                    ${s.p.map(j => `<div class="h-row"><span>${j.Jugador}</span><span style="color:${j.Resultado >= 0 ? 'var(--green)' : 'var(--red)'}">${j.Resultado >= 0 ? '+' : ''}$${j.Resultado}</span></div>`).join('')}
-                                </div>
+                            <div class="history-card" style="background:#1a1a1a; margin-bottom:10px; padding:10px; border-radius:5px; border-left: 3px solid var(--gold);">
+                                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--neutral);">${s.f} - ${s.h}</div>
+                                ${s.p.map(j => `<div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-top:5px;"><span>${j.Jugador}</span><span style="color:${j.Resultado >= 0 ? 'var(--green)' : 'var(--red)'}">${j.Resultado >= 0 ? '+' : ''}$${j.Resultado}</span></div>`).join('')}
                             </div>
                         `).join('')}
                     </div>
@@ -356,8 +332,7 @@
         });
     }
 
-    setupDateTime();
-    fetchHistorial();
+    init();
 </script>
 </body>
 </html>
