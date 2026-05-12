@@ -3,269 +3,363 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ludópatas FC - Ingeniería de Mesa</title>
+    <title>Ludópatas FC - Elite Edition</title>
     <style>
-        :root { 
-            --gold: #d4af37; --bg: #0a0a0a; --panel: #161616; 
-            --border: #333; --text: #eee; --red: #ff4d4d; --green: #2ecc71; 
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto+Mono:ital,wght@1,300&display=swap');
+
+        :root {
+            --bg: #0a0a0a; --panel: #161616; --gold: #d4af37;
+            --red: #ff4d4d; --green: #2ecc71; --blue: #3498db;
+            --neutral: #888; --text: #ffffff; --border: #333;
         }
 
-        body { 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
-            background: var(--bg); color: var(--text); 
-            padding: 10px; margin: 0; -webkit-font-smoothing: antialiased;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg); color: var(--text); margin: 0; padding: 10px;
+            display: flex; justify-content: center;
         }
 
-        .container { max-width: 900px; margin: auto; }
+        .container { width: 100%; max-width: 950px; }
 
-        header { 
-            text-align: center; border-bottom: 2px solid var(--gold); 
-            margin-bottom: 15px; padding: 15px; background: linear-gradient(180deg, #111, #0a0a0a);
+        header {
+            text-align: center; border-bottom: 2px solid var(--gold);
+            padding-bottom: 10px; margin-bottom: 20px;
         }
 
-        h1 { color: var(--gold); letter-spacing: 4px; margin: 0; font-size: 1.5rem; text-transform: uppercase; }
-
-        /* Tarjetas con Colapso Real */
-        .card { 
-            background: var(--panel); border: 1px solid var(--border); 
-            border-radius: 12px; padding: 12px; margin-bottom: 12px; 
-            overflow: hidden; transition: all 0.3s ease;
+        header h1 { 
+            color: var(--gold); text-transform: uppercase; letter-spacing: 4px; margin: 0; 
+            font-size: 1.8rem; font-family: 'Playfair Display', serif;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
-        .card-header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            cursor: pointer; border-left: 4px solid var(--gold); padding-left: 12px;
+        .credits {
+            font-family: 'Roboto Mono', monospace; font-style: italic; font-weight: 300;
+            font-size: 0.65rem; color: #444; margin-top: 2px; letter-spacing: 1px;
         }
 
-        .card-header h2 { color: var(--gold); font-size: 0.8rem; text-transform: uppercase; margin: 0; }
+        .suits { font-size: 1rem; color: var(--gold); opacity: 0.5; margin-bottom: 5px; }
 
-        .collapsible-content { 
-            max-height: 3000px; opacity: 1; margin-top: 15px; 
-            transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+        .session-info { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+        .info-input {
+            background: #222; border: 1px solid var(--border); border-radius: 20px;
+            color: var(--gold); padding: 8px 12px; font-size: 0.75rem; text-align: center; width: 45%;
         }
 
-        .collapsed { 
-            max-height: 0 !important; opacity: 0 !important; 
-            margin-top: 0 !important; pointer-events: none; visibility: hidden; 
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media (min-width: 850px) { .main-grid { grid-template-columns: 320px 1fr; } }
+
+        .card {
+            background: var(--panel); padding: 15px; border-radius: 12px;
+            border: 1px solid var(--border); box-shadow: 0 8px 16px rgba(0,0,0,0.5); height: fit-content;
         }
 
-        /* Tablas Técnicas */
-        .table-wrapper { overflow-x: auto; margin-top: 10px; border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 500px; }
-        th { text-align: left; color: #777; padding: 12px; border-bottom: 2px solid var(--border); font-size: 0.7rem; }
-        td { padding: 12px; border-bottom: 1px solid #222; }
+        h2 { font-size: 0.85rem; color: var(--gold); margin: 0 0 15px 0; text-transform: uppercase; border-left: 3px solid var(--gold); padding-left: 10px; }
 
-        /* Inputs y Botones */
-        .btn { 
-            padding: 12px; border: none; border-radius: 6px; 
-            font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.75rem;
+        input {
+            width: 100%; padding: 12px; background: #222; border: 1px solid var(--border);
+            border-radius: 8px; color: #fff; box-sizing: border-box; font-size: 1rem;
         }
-        .btn-gold { background: var(--gold); color: #000; width: 100%; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(212, 175, 55, 0.2); }
-        .btn-green { background: var(--green); color: #fff; width: 100%; }
-        .btn-green:disabled { background: #1a3d29; color: #555; cursor: not-allowed; }
-        .btn-op { padding: 6px 12px; background: #2a2a2a; color: white; border: 1px solid #444; border-radius: 4px; }
 
-        input { background: #222; border: 1px solid #444; color: white; padding: 8px; border-radius: 4px; width: 75px; text-align: center; }
-        select { width: 100%; padding: 14px; background: #222; color: white; border-radius: 8px; border: 1px solid var(--border); font-size: 1rem; margin-bottom: 10px; }
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold;
+            cursor: pointer; text-transform: uppercase; transition: 0.2s; font-size: 0.9rem;
+        }
 
-        .status-win { color: var(--green); font-weight: bold; }
-        .status-loss { color: var(--red); font-weight: bold; }
+        .btn-gold { background: var(--gold); color: #000; box-shadow: 0 4px 0 #967c29; }
+        .btn-green { background: var(--green); color: #fff; margin-top: 15px; }
+        .btn-blue { background: var(--blue); color: #fff; margin-top: 10px; }
         
-        #display-error { display: none; background: #3a0000; color: #ff9999; padding: 15px; border-radius: 8px; border: 1px solid var(--red); margin-bottom: 15px; font-size: 0.85rem; }
+        .btn-plus { background: #333; color: var(--green); border: 1px solid #555; border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+        .btn-del { background: rgba(255, 77, 77, 0.1); color: var(--red); border: 1px solid var(--red); border-radius: 4px; padding: 4px 8px; cursor: pointer; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; font-size: 0.65rem; color: var(--neutral); padding: 8px; border-bottom: 1px solid var(--border); }
+        td { padding: 10px 6px; border-bottom: 1px solid #222; font-size: 0.85rem; }
+
+        .monto-resultado { width: 70px; background: #000; border: 1px solid #444; color: var(--gold); text-align: center; padding: 8px 4px; border-radius: 6px; font-weight: bold; }
+
+        .badge { 
+            padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 0.7rem; 
+            display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 80px;
+        }
+        .win { background: rgba(46, 204, 113, 0.15); color: var(--green); }
+        .loss { background: rgba(255, 77, 77, 0.15); color: var(--red); }
+        .cero { background: rgba(136, 136, 136, 0.15); color: var(--neutral); }
+        .arremango { background: var(--blue); color: #fff; border: 1px solid #fff; }
+
+        .alerta {
+            background: rgba(255, 77, 77, 0.1); color: var(--red);
+            padding: 15px; border-radius: 8px; border: 1px solid var(--red);
+            margin-top: 15px; text-align: center; font-weight: bold; display: none;
+        }
+
+        .month-group { margin-top: 15px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+        .month-header {
+            background: #222; padding: 15px; display: flex; justify-content: space-between;
+            align-items: center; cursor: pointer; border-bottom: 1px solid #333;
+        }
+        .month-name { color: var(--gold); font-weight: 900; }
+        .month-content { padding: 10px; background: #0c0c0c; display: none; }
+        .month-content.show { display: block !important; }
+
+        .history-card { background: var(--panel); border-radius: 8px; margin-bottom: 12px; border-left: 5px solid var(--gold); overflow: hidden; }
+        .h-head { background: #1a1a1a; padding: 10px; display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--neutral); }
+        .h-body { padding: 10px; }
+        .h-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1f1f1f; }
+        
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+
+        /* Nueva sección de Cobros */
+        .cobro-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222; }
+        select#filtro-cobros { width: 100%; background: #000; color: var(--gold); border: 1px solid var(--border); padding: 10px; border-radius: 8px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
+<div id="loader" class="loading-overlay"><div style="color:var(--gold); font-weight: bold; letter-spacing: 2px;">GUARDANDO EN NUBE...</div></div>
+
 <div class="container">
     <header>
-        <h1>LUDÓPATAS FC</h1>
-        <div style="font-size:0.65rem; color:#666; margin-top:5px;">INGENIERÍA DE MESA | BLACK KING AUTOMOTRIZ</div>
+        <div class="suits">♠️ ♥️ ♣️ ♦️</div>
+        <h1>Ludópatas FC</h1>
+        <div class="credits">Created by Matias Reyes & Gemini Associates</div>
     </header>
 
-    <div id="display-error"></div>
+    <div class="session-info">
+        <input type="text" id="current-date" class="info-input" readonly>
+        <input type="text" id="session-note" class="info-input">
+    </div>
 
-    <!-- SECCIÓN 1: MESA -->
-    <div class="card">
-        <div class="card-header" onclick="toggleSection('mesa-content', 'mesa-icon')">
-            <h2>Gestión de Mesa en Vivo</h2>
-            <span id="mesa-icon" style="color:var(--gold); font-weight:bold;">−</span>
+    <div class="main-grid">
+        <div class="card">
+            <h2>Nuevo Jugador</h2>
+            <div style="margin-bottom: 12px;">
+                <input type="text" id="name" placeholder="NOMBRE JUGADOR">
+            </div>
+            <div style="margin-bottom: 12px;">
+                <input type="number" id="buys" value="1" min="1">
+            </div>
+            <button class="btn btn-gold" onclick="add()">Sentar en Mesa</button>
+            <div style="margin-top:20px; text-align: center;">
+                <span style="color:var(--neutral); font-size: 0.7rem;">POZO EN MESA</span><br>
+                <span id="total-in" style="color:var(--gold); font-size: 1.6rem; font-weight: bold;">$0</span>
+            </div>
         </div>
-        <div id="mesa-content" class="collapsible-content">
-            <select id="sel-socio"></select>
-            <button class="btn btn-gold" onclick="sentarJugador()">Sentar Jugador</button>
-            
-            <div class="table-wrapper">
+
+        <div class="card">
+            <h2>Mesa en Vivo</h2>
+            <div style="overflow-x: auto;">
                 <table>
                     <thead>
-                        <tr><th>Socio</th><th>Manos</th><th>Inversión</th><th>Cierre</th><th>Neto</th><th></th></tr>
+                        <tr>
+                            <th></th>
+                            <th>Jugador</th>
+                            <th>Manos</th>
+                            <th>Inv.</th>
+                            <th>Cierre</th>
+                            <th>Estado</th>
+                        </tr>
                     </thead>
-                    <tbody id="tabla-mesa"></tbody>
+                    <tbody id="lista-mesa"></tbody>
                 </table>
             </div>
+            <button class="btn btn-green" onclick="liquidar()">Finalizar y Cuadrar</button>
+            <div id="msg-alerta" class="alerta"></div>
 
-            <div id="panel-final" style="display:none; margin-top:20px; border-top: 1px solid #333; padding-top:15px;">
-                <div id="txt-cuadre" style="text-align:center; font-weight:bold; padding:10px; background:#000; border-radius:6px; margin-bottom:15px;"></div>
-                <button id="btn-sync" class="btn btn-green" onclick="enviarReporte()">Sincronizar Partida</button>
+            <div id="resumen-final" style="display:none; margin-top:20px; padding:15px; background:#000; border-radius:8px; border: 1px solid var(--blue);">
+                <div id="resumen-lista" style="font-size: 0.85rem; margin-bottom: 15px; line-height: 1.6;"></div>
+                <button class="btn btn-blue" onclick="guardarPartida()">Confirmar y Guardar</button>
             </div>
         </div>
     </div>
 
-    <!-- SECCIÓN 2: COBROS -->
-    <div class="card" style="border-color: var(--green);">
-        <div class="card-header" onclick="toggleSection('cobros-content', 'cobros-icon')">
-            <h2>Cobro Mensual (Corte 21)</h2>
-            <span id="cobros-icon" style="color:var(--gold);">+</span>
-        </div>
-        <div id="cobros-content" class="collapsible-content collapsed">
-            <select id="filtro-mes" onchange="actualizarVistas()"></select>
-            <div id="lista-cobros"></div>
-        </div>
+    <div class="card" style="margin-top: 30px; border-color: var(--green);">
+        <h2>Resumen Contable (Día 21) 💰</h2>
+        <select id="filtro-cobros" onchange="renderCobros()"></select>
+        <div id="contenedor-cobros"></div>
     </div>
 
-    <!-- SECCIÓN 3: HISTORIAL -->
-    <div class="card">
-        <div class="card-header" onclick="toggleSection('historial-content', 'historial-icon')">
-            <h2>Historial de Sesiones</h2>
-            <span id="historial-icon" style="color:var(--gold);">+</span>
-        </div>
-        <div id="historial-content" class="collapsible-content collapsed">
-            <div id="historial-lista"></div>
+    <div style="margin-top: 30px;">
+        <h2 style="color:var(--neutral); border-color:var(--neutral);">Historial de Sesiones</h2>
+        <div id="historial-contenedor">
+            <p style="text-align:center; color:var(--neutral); font-size: 0.8rem;">Cargando datos...</p>
         </div>
     </div>
 </div>
 
 <script>
-    // URL PROPORCIONADA POR EL USUARIO
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzc3MvOrmfyz2NMxq-d-Y8BA8xD6QCgnTGMUMB4ZWdYO1aIVPvRbGhP2xvfMIUbVCzP/exec";
-    
-    let localDB = { socios: [], historial: [] };
-    let mesaActiva = [];
+    const SCRIPT_URL = "TU_URL_AQUI"; // REEMPLAZAR CON TU NUEVA URL DE IMPLEMENTACIÓN
+    let mesa = [];
+    let dbGlobal = [];
+    const VALOR_MANO = 100;
+    const meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
 
-    function toggleSection(cid, iid) {
-        const c = document.getElementById(cid);
-        const i = document.getElementById(iid);
-        c.classList.toggle('collapsed');
-        i.innerText = c.classList.contains('collapsed') ? '+' : '−';
+    function setupDateTime() {
+        const now = new Date();
+        document.getElementById('current-date').value = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+        document.getElementById('session-note').value = now.getHours() >= 12 ? 'JORNADA NOCTURNA' : 'JORNADA MAÑANA';
     }
 
-    async function cargarSistema() {
-        try {
-            const r = await fetch(GAS_URL);
-            if (!r.ok) throw new Error("No se pudo conectar con el servidor de Google.");
-            localDB = await r.json();
+    function add() {
+        const n = document.getElementById('name').value.toUpperCase();
+        const b = parseInt(document.getElementById('buys').value);
+        if(!n) return;
+        mesa.push({ id: Date.now(), nombre: n, manos: b, balanceNeto: 0 });
+        document.getElementById('name').value = "";
+        actualizarMesa();
+    }
 
-            if (localDB.error) throw new Error(localDB.error);
+    function addMano(id) {
+        const j = mesa.find(x => x.id === id);
+        if(j) { j.manos += 1; actualizarMesa(); }
+    }
 
-            // Poblar Select Socios
-            document.getElementById('sel-socio').innerHTML = localDB.socios
-                .map(s => `<option value="${s}">${s}</option>`).join('');
-            
-            // Poblar Filtro Meses
-            const periodos = [...new Set(localDB.historial.map(h => h.ID_Mes))].reverse();
-            document.getElementById('filtro-mes').innerHTML = periodos
-                .map(p => `<option value="${p}">${p}</option>`).join('');
-
-            actualizarVistas();
-        } catch (e) {
-            const errDiv = document.getElementById('display-error');
-            errDiv.style.display = "block";
-            errDiv.innerHTML = `<b>Error de Ingeniería:</b> ${e.message}<br><small>Verifica los permisos del Script (Cualquier persona).</small>`;
+    function setNeto(id, val) {
+        const j = mesa.find(x => x.id === id);
+        if(j) {
+            j.balanceNeto = parseFloat(val) || 0;
+            // Actualizamos el badge sin refrescar toda la tabla para no perder el foco
+            const celda = document.getElementById(`saldo-${j.id}`);
+            const bal = j.balanceNeto;
+            if (bal >= 200) celda.innerHTML = `<span class="badge arremango">🔥 ARREMANGO</span>`;
+            else if (bal > 0) celda.innerHTML = `<span class="badge win">✅ +$${bal}</span>`;
+            else if (bal < 0) celda.innerHTML = `<span class="badge loss">💀 -$${Math.abs(bal)}</span>`;
+            else celda.innerHTML = `<span class="badge cero">🃏 $0</span>`;
         }
     }
 
-    function sentarJugador() {
-        const n = document.getElementById('sel-socio').value;
-        if (mesaActiva.find(j => j.nombre === n)) return;
-        mesaActiva.push({ nombre: n, manos: 1, inversion: 100, cierre: 0, balance: -100 });
-        renderMesa();
+    function actualizarMesa() {
+        const tbody = document.getElementById('lista-mesa');
+        tbody.innerHTML = "";
+        let total = 0;
+        mesa.forEach(j => {
+            const inv = j.manos * VALOR_MANO;
+            total += inv;
+            tbody.innerHTML += `
+                <tr>
+                    <td><button class="btn-del" onclick="mesa = mesa.filter(x => x.id !== ${j.id}); actualizarMesa()">×</button></td>
+                    <td><b>${j.nombre}</b></td>
+                    <td>${j.manos} <button class="btn-plus" onclick="addMano(${j.id})">+</button></td>
+                    <td>$${inv}</td>
+                    <td><input type="number" step="10" class="monto-resultado" value="${j.balanceNeto}" oninput="setNeto(${j.id}, this.value)"></td>
+                    <td id="saldo-${j.id}"></td>
+                </tr>`;
+        });
+        document.getElementById('total-in').innerText = "$" + total.toLocaleString();
+        mesa.forEach(j => setNeto(j.id, j.balanceNeto));
     }
 
-    function modManos(idx, val) {
-        mesaActiva[idx].manos = Math.max(1, mesaActiva[idx].manos + val);
-        mesaActiva[idx].inversion = mesaActiva[idx].manos * 100;
-        mesaActiva[idx].balance = mesaActiva[idx].cierre - mesaActiva[idx].inversion;
-        renderMesa();
+    function liquidar() {
+        let suma = 0; mesa.forEach(j => suma += j.balanceNeto);
+        const alerta = document.getElementById('msg-alerta');
+        const resDiv = document.getElementById('resumen-final');
+        if(suma !== 0) {
+            alerta.style.display = "block";
+            alerta.innerText = suma > 0 ? `⚠️ SOBRAN $${suma}` : `⚠️ FALTAN $${Math.abs(suma)}`;
+            resDiv.style.display = "none";
+        } else {
+            alerta.style.display = "none";
+            resDiv.style.display = "block";
+            let resHtml = "<b>RESUMEN DE CUENTAS CLARAS:</b><br>";
+            mesa.forEach(j => {
+                const icon = j.balanceNeto > 0 ? "✅" : (j.balanceNeto < 0 ? "💀" : "🃏");
+                resHtml += `${icon} ${j.nombre}: ${j.balanceNeto >= 0 ? '+' : ''}$${j.balanceNeto}<br>`;
+            });
+            document.getElementById('resumen-lista').innerHTML = resHtml;
+        }
     }
 
-    function renderMesa() {
-        const body = document.getElementById('tabla-mesa');
-        body.innerHTML = mesaActiva.map((j, i) => `
-            <tr>
-                <td style="font-weight:bold; color:var(--gold);">${j.nombre}</td>
-                <td>
-                    <button class="btn-op" onclick="modManos(${i},-1)">-</button>
-                    <span style="margin:0 5px;">${j.manos}</span>
-                    <button class="btn-op" onclick="modManos(${i},1)">+</button>
-                </td>
-                <td>$${j.inversion}</td>
-                <td><input type="number" value="${j.cierre}" oninput="mesaActiva[${i}].cierre=parseFloat(this.value)||0; mesaActiva[${i}].balance=mesaActiva[${i}].cierre-mesaActiva[${i}].inversion; renderMesa()"></td>
-                <td class="${j.balance >= 0 ? 'status-win' : 'status-loss'}">$${j.balance}</td>
-                <td><button class="btn-op" onclick="mesaActiva.splice(${i},1);renderMesa()">❌</button></td>
-            </tr>
-        `).join('');
-
-        const totalInv = mesaActiva.reduce((s, j) => s + j.inversion, 0);
-        const totalCie = mesaActiva.reduce((s, j) => s + j.cierre, 0);
-        const delta = totalCie - totalInv;
-
-        document.getElementById('panel-final').style.display = mesaActiva.length > 0 ? 'block' : 'none';
-        document.getElementById('txt-cuadre').innerHTML = `INV: $${totalInv} | CIERRE: $${totalCie} | <span style="color:${delta === 0 ? 'var(--green)' : 'var(--red)'}">${delta === 0 ? 'MESA CUADRADA' : 'DIF: $' + delta}</span>`;
-        document.getElementById('btn-sync').disabled = (delta !== 0);
-    }
-
-    async function enviarReporte() {
-        if (!confirm("¿Deseas enviar el reporte a Black King Automotriz?")) return;
-        
+    async function guardarPartida() {
+        document.getElementById('loader').style.display = "flex";
+        const now = new Date();
         const payload = {
-            fecha: new Date().toLocaleDateString('es-CL'),
-            hora: new Date().toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'}),
-            jornada: "PARTIDA " + new Date().toLocaleDateString(),
-            jugadores: mesaActiva.map(j => ({ nombre: j.nombre, inversion: j.inversion, balanceNeto: j.balance }))
+            fecha: document.getElementById('current-date').value,
+            hora: now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0'),
+            jornada: document.getElementById('session-note').value,
+            jugadores: mesa.map(j => ({ nombre: j.nombre, inversion: j.manos * VALOR_MANO, balanceNeto: j.balanceNeto }))
         };
-
         try {
-            await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert("Reporte sincronizado con éxito.");
-            location.reload();
-        } catch (e) { alert("Error al sincronizar."); }
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            alert("¡Partida Guardada!");
+            mesa = []; actualizarMesa();
+            setTimeout(fetchHistorial, 1500);
+        } catch (e) { alert("Error de conexión"); }
+        document.getElementById('loader').style.display = "none";
     }
 
-    function actualizarVistas() {
-        const mes = document.getElementById('filtro-mes').value;
-        const filtrado = localDB.historial.filter(h => h.ID_Mes === mes);
+    async function fetchHistorial() {
+        try {
+            const res = await fetch(SCRIPT_URL);
+            dbGlobal = await res.json();
+            renderHistorial(dbGlobal);
+            renderFiltroCobros(dbGlobal);
+        } catch (e) { console.log("Error al cargar"); }
+    }
 
-        // Cobros
-        let s = {}; localDB.socios.forEach(x => s[x] = 0);
-        filtrado.forEach(r => { if(s[r.Jugador] !== undefined) s[r.Jugador] += parseFloat(r.Resultado); });
-        
-        document.getElementById('lista-cobros').innerHTML = Object.entries(s)
-            .sort((a,b) => b[1]-a[1])
-            .map(([n, v]) => `
-                <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #222;">
-                    <span>${n}</span>
-                    <span class="${v>=0?'status-win':'status-loss'}">$${v}</span>
-                </div>
-            `).join('');
+    function renderFiltroCobros(data) {
+        const periodos = [...new Set(data.map(h => h.ID_Mes))].reverse();
+        const sel = document.getElementById('filtro-cobros');
+        sel.innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
+        renderCobros();
+    }
 
-        // Historial Sesiones
-        let ses = {};
+    function renderCobros() {
+        const mesSel = document.getElementById('filtro-cobros').value;
+        const filtrado = dbGlobal.filter(h => h.ID_Mes === mesSel);
+        const saldos = {};
         filtrado.forEach(r => {
-            const k = r.Fecha + r.Hora;
-            if(!ses[k]) ses[k] = { f: r.Fecha, h: r.Hora, p: [] };
-            ses[k].p.push(r);
+            saldos[r.Jugador] = (saldos[r.Jugador] || 0) + parseFloat(r.Resultado);
         });
 
-        document.getElementById('historial-lista').innerHTML = Object.values(ses).reverse().map(x => `
-            <div style="background:#111; border:1px solid #333; border-radius:8px; margin-bottom:10px; overflow:hidden;">
-                <div style="background:#1a1a1a; padding:8px; font-size:0.7rem; color:var(--gold); display:flex; justify-content:space-between;">
-                    <span>📅 ${x.f}</span> <span>⏰ ${x.h}</span>
-                </div>
-                ${x.p.map(p => `<div style="padding:5px 10px; display:flex; justify-content:space-between; font-size:0.8rem;"><span>${p.Jugador}</span><span class="${p.Resultado>=0?'status-win':'status-loss'}">$${p.Resultado}</span></div>`).join('')}
+        const cont = document.getElementById('contenedor-cobros');
+        cont.innerHTML = Object.entries(saldos).sort((a,b) => b[1] - a[1]).map(([nom, bal]) => `
+            <div class="cobro-row">
+                <span style="font-weight:bold;">${nom}</span>
+                <span class="${bal >= 0 ? 'status-win' : 'status-loss'}" style="color:${bal >= 0 ? 'var(--green)' : 'var(--red)'}">
+                    ${bal >= 0 ? '+$' : '-$'}${Math.abs(bal)}
+                </span>
             </div>
         `).join('');
     }
 
-    window.onload = cargarSistema;
+    function renderHistorial(data) {
+        const cont = document.getElementById('historial-contenedor');
+        cont.innerHTML = "";
+        const grupos = {};
+        data.slice().reverse().forEach(row => {
+            if(!grupos[row.ID_Mes]) grupos[row.ID_Mes] = { sesiones: {} };
+            const sKey = row.Fecha + row.Hora;
+            if(!grupos[row.ID_Mes].sesiones[sKey]) grupos[row.ID_Mes].sesiones[sKey] = { f: row.Fecha, h: row.Hora, p: [] };
+            grupos[row.ID_Mes].sesiones[sKey].p.push(row);
+        });
+
+        Object.keys(grupos).forEach(idMes => {
+            const g = grupos[idMes];
+            const idLimpio = idMes.replace(/\s+/g, '_');
+            cont.innerHTML += `
+                <div class="month-group">
+                    <div class="month-header" onclick="document.getElementById('content-${idLimpio}').classList.toggle('show')">
+                        <span class="month-name">📅 ${idMes}</span> <span>▾</span>
+                    </div>
+                    <div id="content-${idLimpio}" class="month-content">
+                        ${Object.values(g.sesiones).map(s => `
+                            <div class="history-card">
+                                <div class="h-head"><span>SESIÓN</span> <span>${s.f} - ${s.h}</span></div>
+                                <div class="h-body">
+                                    ${s.p.map(j => `<div class="h-row"><span>${j.Jugador}</span><span style="color:${j.Resultado >= 0 ? 'var(--green)' : 'var(--red)'}">${j.Resultado >= 0 ? '+' : ''}$${j.Resultado}</span></div>`).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+        });
+    }
+
+    setupDateTime();
+    fetchHistorial();
 </script>
 </body>
 </html>
