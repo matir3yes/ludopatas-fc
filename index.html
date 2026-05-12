@@ -112,7 +112,6 @@
             background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000;
         }
 
-        /* Nueva sección de Cobros */
         .cobro-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222; }
         select#filtro-cobros { width: 100%; background: #000; color: var(--gold); border: 1px solid var(--border); padding: 10px; border-radius: 8px; margin-bottom: 10px; }
     </style>
@@ -191,11 +190,12 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "TU_URL_AQUI"; // REEMPLAZAR CON TU NUEVA URL DE IMPLEMENTACIÓN
+    // URL DE TU SCRIPT YA INTEGRADA
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6LqasSF48aYm9L3alUF6iRi7CL4LQvo5E07WeOAt9Csp8or2tnhyvhNdRXmY6b_k2/exec";
+    
     let mesa = [];
     let dbGlobal = [];
     const VALOR_MANO = 100;
-    const meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
 
     function setupDateTime() {
         const now = new Date();
@@ -221,7 +221,6 @@
         const j = mesa.find(x => x.id === id);
         if(j) {
             j.balanceNeto = parseFloat(val) || 0;
-            // Actualizamos el badge sin refrescar toda la tabla para no perder el foco
             const celda = document.getElementById(`saldo-${j.id}`);
             const bal = j.balanceNeto;
             if (bal >= 200) celda.innerHTML = `<span class="badge arremango">🔥 ARREMANGO</span>`;
@@ -263,10 +262,9 @@
         } else {
             alerta.style.display = "none";
             resDiv.style.display = "block";
-            let resHtml = "<b>RESUMEN DE CUENTAS CLARAS:</b><br>";
+            let resHtml = "<b>RESUMEN:</b><br>";
             mesa.forEach(j => {
-                const icon = j.balanceNeto > 0 ? "✅" : (j.balanceNeto < 0 ? "💀" : "🃏");
-                resHtml += `${icon} ${j.nombre}: ${j.balanceNeto >= 0 ? '+' : ''}$${j.balanceNeto}<br>`;
+                resHtml += `${j.nombre}: ${j.balanceNeto >= 0 ? '+' : ''}$${j.balanceNeto}<br>`;
             });
             document.getElementById('resumen-lista').innerHTML = resHtml;
         }
@@ -274,51 +272,51 @@
 
     async function guardarPartida() {
         document.getElementById('loader').style.display = "flex";
-        const now = new Date();
         const payload = {
             fecha: document.getElementById('current-date').value,
-            hora: now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0'),
+            hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
             jornada: document.getElementById('session-note').value,
             jugadores: mesa.map(j => ({ nombre: j.nombre, inversion: j.manos * VALOR_MANO, balanceNeto: j.balanceNeto }))
         };
         try {
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert("¡Partida Guardada!");
+            alert("Partida enviada.");
             mesa = []; actualizarMesa();
-            setTimeout(fetchHistorial, 1500);
-        } catch (e) { alert("Error de conexión"); }
+            setTimeout(fetchHistorial, 2000);
+        } catch (e) { alert("Error al guardar."); }
         document.getElementById('loader').style.display = "none";
     }
 
     async function fetchHistorial() {
         try {
             const res = await fetch(SCRIPT_URL);
-            dbGlobal = await res.json();
-            renderHistorial(dbGlobal);
-            renderFiltroCobros(dbGlobal);
-        } catch (e) { console.log("Error al cargar"); }
+            const data = await res.json();
+            dbGlobal = data;
+            renderHistorial(data);
+            renderFiltroCobros(data);
+        } catch (e) { document.getElementById('historial-contenedor').innerHTML = "Error al cargar datos."; }
     }
 
     function renderFiltroCobros(data) {
         const periodos = [...new Set(data.map(h => h.ID_Mes))].reverse();
         const sel = document.getElementById('filtro-cobros');
-        sel.innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
-        renderCobros();
+        if(periodos.length > 0) {
+            sel.innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
+            renderCobros();
+        }
     }
 
     function renderCobros() {
         const mesSel = document.getElementById('filtro-cobros').value;
         const filtrado = dbGlobal.filter(h => h.ID_Mes === mesSel);
         const saldos = {};
-        filtrado.forEach(r => {
-            saldos[r.Jugador] = (saldos[r.Jugador] || 0) + parseFloat(r.Resultado);
-        });
+        filtrado.forEach(r => { saldos[r.Jugador] = (saldos[r.Jugador] || 0) + parseFloat(r.Resultado); });
 
         const cont = document.getElementById('contenedor-cobros');
         cont.innerHTML = Object.entries(saldos).sort((a,b) => b[1] - a[1]).map(([nom, bal]) => `
             <div class="cobro-row">
                 <span style="font-weight:bold;">${nom}</span>
-                <span class="${bal >= 0 ? 'status-win' : 'status-loss'}" style="color:${bal >= 0 ? 'var(--green)' : 'var(--red)'}">
+                <span style="color:${bal >= 0 ? 'var(--green)' : 'var(--red)'}">
                     ${bal >= 0 ? '+$' : '-$'}${Math.abs(bal)}
                 </span>
             </div>
@@ -327,6 +325,7 @@
 
     function renderHistorial(data) {
         const cont = document.getElementById('historial-contenedor');
+        if(!data || data.length === 0) { cont.innerHTML = "Sin registros."; return; }
         cont.innerHTML = "";
         const grupos = {};
         data.slice().reverse().forEach(row => {
@@ -337,7 +336,6 @@
         });
 
         Object.keys(grupos).forEach(idMes => {
-            const g = grupos[idMes];
             const idLimpio = idMes.replace(/\s+/g, '_');
             cont.innerHTML += `
                 <div class="month-group">
@@ -345,7 +343,7 @@
                         <span class="month-name">📅 ${idMes}</span> <span>▾</span>
                     </div>
                     <div id="content-${idLimpio}" class="month-content">
-                        ${Object.values(g.sesiones).map(s => `
+                        ${Object.values(grupos[idMes].sesiones).map(s => `
                             <div class="history-card">
                                 <div class="h-head"><span>SESIÓN</span> <span>${s.f} - ${s.h}</span></div>
                                 <div class="h-body">
